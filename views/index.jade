@@ -1,0 +1,14 @@
+extends layout
+block content
+    h1= title
+    p Welcome to #{welcome}
+    div#renderer
+
+    // scripts
+    script(src="https://cdn.socket.io/socket.io-1.4.5.js")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.2.2/pixi.min.js")
+    script(src="https://code.jquery.com/jquery-3.1.1.min.js",integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=",crossorigin="anonymous")
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js")
+    script(src="http://localhost:3000/javascripts/SpriteGenerator.js")
+    script(src="http://localhost:3000/javascripts/renderer.js")
+    script(src="http://localhost:3000/javascripts/eventHandler.js")
