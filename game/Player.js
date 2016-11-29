@@ -2,11 +2,14 @@
  * Created by Nigel on 26/11/2016.
  */
 
+var PhysicalElement = require('./PhysicalElement')
+
 /**
  * @class Player
+ * @extends PhysicalElement
  * @description A player of the game
  */
-class Player {
+class Player extends PhysicalElement{
 
     /**
      * @constructor
@@ -19,21 +22,10 @@ class Player {
      */
     constructor(name, x, y, width, height, socket) {
 
+        super(x,y,width,height)
         this.name = name
         this.socket = socket
         this.body = new Bodies.rectangle(x, y, width, height)
-
-    }
-
-    /**
-     * @method setPosition
-     * @description Set the position of the player
-     * @param {Number} x
-     * @param {Number} y
-     */
-    setPosition(x, y) {
-
-        this.body.setPosition(this.body, {x, y})
 
     }
 

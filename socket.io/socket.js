@@ -1,74 +1,71 @@
-var Game = require('../game/Game');
-var Player = require('../game/Player');
-var Ground = require('../game/Ground');
+var Game = require( '../game/Game' );
+var PhysicalElement = require('../game/PhysicalElement')
+var Player = require( '../game/Player' );
+var Ground = require( '../game/Ground' );
 
-module.exports = (()=>{
+module.exports = ( ()=>{
 
-    return ((socket)=>{
+    return ( ( socket )=>{
 
-        socket.on('login', function ( data ) {
+        socket.on( 'login' , ( playerInfos )=>{
 
             // create a new player linked with the socket
-            socket.player = new Player( data.name , data.x , data.y , data.width , data.height , socket )
+            socket.player = new Player( playerInfos.name , playerInfos.x , playerInfos.y , playerInfos.width , playerInfos.height , socket )
 
             // tell the player that the login worked
-            socket.emit(`connected`)
+            socket.emit( `connected` )
 
             // send current games to the player
-            socket.emit(`currentGames`,Object.keys(currentGames))
+            socket.emit( `currentGames` , Object.keys( currentGames ) )
 
-        });
+        } );
 
-
-        socket.on(`logout`, ()=>{
+        socket.on( `logout` , ()=>{
 
             // if the player was playing, he leaves the game
             if ( socket.player.game != null )
                 currentGames[ socket.player.game ].removePlayer( socket.player )
 
-            socket.emit(`disconnected`);
+            socket.emit( `disconnected` );
 
-        });
+        } );
 
+        socket.on( `keydown` ,( keyCode )=>{
 
-        socket.on(`keydown`,( data )=>{
-
-            console.log(`key down : ${ data }`)
-
-        })
-
-
-        socket.on("keyup",( data )=>{
-
-            console.log(`key up : ${data}`)
+            console.log(`key down : ${ keyCode }`)
 
         })
 
+        socket.on( `keyup` ,( keyCode )=>{
 
-        socket.on(`newGame`,( data )=>{
+            console.log( `key up : ${keyCode}` )
 
-            let game = new Game( data.name , data.fps , [socket.player.name] , data.map )
-            if (game){ // if the creation worked
-                game.addPlayer(socket.player)
-                currentGames[game.name] = game
-                socket.emit('currentGames',Object.keys(currentGames)) // send current games to the player
-                socket.broadcast.emit('currentGames',Object.keys(currentGames)) // send current games to all others players
+        } )
+
+        socket.on( `newGame` , ( gameInfos )=>{
+
+            let game = new Game( gameInfos.name , gameInfos.fps , [socket.player.name] , gameInfos.map )
+            if ( game ){ // if the creation worked
+                // send current games to everybody
+                socket.emit( 'currentGames' , Object.keys( currentGames ) )
+                socket.broadcast.emit( 'currentGames' , Object.keys( currentGames ) )
+
                 return
             }
-            socket.emit("newGame", false)
+            socket.emit( `newGame` , false )
 
-        })
+        } )
 
-        socket.on(`joinGame`,( data )=>{
+        socket.on( `joinGame` , ( gameId )=>{
 
-            currentGames[data].addPlayer(socket.player)
+            currentGames[ gameId ].addPhysicalElement( socket.player )
 
-        })
+        } )
 
-        socket.on("startGame",(data)=>{
+        socket.on( `startGame` , ( gameId )=>{
 
-            currentGames[data].start()
+            currentGames[ gameId ].start()
 
-        })
-    })
-});
+        } )
+    } )
+} );

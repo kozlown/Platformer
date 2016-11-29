@@ -2,11 +2,14 @@
  * Created by Nigel on 26/11/2016.
  */
 
+var PhysicalElement = require('./PhysicalElement')
+
 /**
  * @class Ground
+ * @extends PhysicalElement
  * @description A platform or a wall of the game
  */
-class Ground{
+class Ground extends PhysicalElement{
 
     /**
      * @constructor
@@ -17,22 +20,11 @@ class Ground{
      * @param {Boolean} [isStatic=true]
      */
     constructor(x,y,width,height,isStatic=true){
+        super(x,y,width,height)
         this.name = name
         this.body = new Bodies.rectangle(x, y, width, height, {
             isStatic: isStatic
         })
-    }
-
-    /**
-     * @method setPosition
-     * @description Set the position of the player
-     * @param {Number} x
-     * @param {Number} y
-     */
-    setPosition(x, y) {
-
-        this.body.setPosition(this.body, {x, y})
-
     }
 
 }

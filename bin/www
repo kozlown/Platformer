@@ -6,15 +6,19 @@
 
 var app = require('../app');
 var debug = require('debug');
-error = debug('error');
-debug = debug('platformer:server');
-
 var http = require('http');
 var argv = require('minimist')(process.argv.slice(2));
 
-/*
-Matter JS
+// globals
+error = debug('error');
+debug = debug('platformer:server');
+_ = require('underscore');
+uniqid = require('uniqid');
+
+/**
+ * Matter JS
  */
+
 Matter = require('matter-js');
 // module aliases
 Engine = Matter.Engine
@@ -22,9 +26,12 @@ Render = Matter.Render
 World = Matter.World
 Bodies = Matter.Bodies;
 
-var socket = require('../socket.io/socket');
-_ = require('underscore');
+/**
+ * Global variables
+ */
+
 currentGames = {};
+
 /**
  * Get port from environment and store in Express.
  */
@@ -34,10 +41,13 @@ app.set('port', port);
 /**
  * Create HTTP server.
  */
-
 var server = http.createServer(app);
+
+/**
+ * Socket.io
+ */
 var io = require('socket.io')(server);
-io.sockets.on('connection', socket());
+io.sockets.on('connection', require('../socket.io/socket')());
 
 /**
  * Listen on provided port, on all network interfaces.
