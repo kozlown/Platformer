@@ -20,6 +20,7 @@ class Player extends PhysicalElement{
      * @param {Number} height
      * @param {Object} socket
      */
+
     constructor(name, x, y, width, height, socket) {
 
         super(x,y,width,height)

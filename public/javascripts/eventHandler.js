@@ -1,13 +1,18 @@
-let socket = io('http://localhost:3000'); // set the socket
+Game = require("./Game.js")
+$ = require("jquery")
+_ = require("underscore")
+io = require('socket.io-client')
+socket = io('http://localhost:3000'); // set the socket
 
-/*
-SOCKET CONNECTION
+game = null
+/**
+@description SOCKET CONNECTION
  */
 {
     socket.emit("login", {
         name: "Nigel"+Math.random(),
-        x: 0,
-        y: 0,
+        x: 100,
+        y: 100,
         width: 100,
         height: 100
     }) // try to login
@@ -23,42 +28,59 @@ SOCKET CONNECTION
 
 
 
-/*
- SOCKET EVENTS HANDLERS
+/**
+ @description SOCKET EVENTS HANDLERS
  */
 {
+
     socket.on('currentGames', (data) => { // when receiving informations about the current games
+
         console.log(`current games : `, data)
+
     })
 
     socket.on('newGame', (data) => { // when receiving informations the new game creation
-        console.log(data)
+
+        console.log("new game : ", data )
+        game = new Game( 500 , 500 , "#renderer" , data )
+        socket.on('gameUpdate', game.update.bind(game))
+
     })
 
-    socket.on('gameUpdate', gameUpdate)
 }
 
 
 
-/*
-KEYS HANDLER
+/**
+@description KEYS HANDLER
  */
 {
+
     let keysDown = new Set() // all keys down
     let eventZone = $(document) // set the zone where events trigger
 
     eventZone.on("keydown", (e) => {
+
         if (!keysDown.has(e.which)) {
+
             keysDown.add(e.which)
             socket.emit("keydown", e.which)
             console.log(keysDown)
+
         }
+
     })
+
     eventZone.on("keyup", (e) => {
+
         if (keysDown.has(e.which)) {
+
             keysDown.delete(e.which)
             socket.emit("keyup", e.which)
             console.log(keysDown)
+
         }
+
     })
+
 }

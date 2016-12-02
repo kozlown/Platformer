@@ -51,6 +51,7 @@ class Game {
 
         // Send informations to the players
         _.each( this.getPhysicalElementsOfType( "Player" ) ,(player)=>{
+            console.log(this.getGameUpdateInfos(player).physicalElements)
             player.socket.emit("gameUpdate", this.getGameUpdateInfos(player))
         })
 
@@ -69,7 +70,6 @@ class Game {
                 elements.push( element )
 
         } )
-        console.log(elements)
         return elements
     }
 
@@ -88,11 +88,16 @@ class Game {
 
         // add all PhysicalElements being in the Game
         _.each( this.physicalElements , ( physicalElement )=>{
+
             gameUpdateInfos.physicalElements.push({
                 id: physicalElement.id,
-                position: physicalElement.body.position
+                type: physicalElement.constructor.name,
+                position: physicalElement.body.position,
+                width: physicalElement.width,
+                height: physicalElement.height
             })
-        } )
+
+        })
 
         return gameUpdateInfos
 

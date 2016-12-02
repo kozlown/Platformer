@@ -28,7 +28,12 @@ class PhysicalElement {
      */
     setPosition(x, y) {
 
-        this.body.setPosition(this.body, {x, y})
+        this.x = x
+        this.y = y
+        this.body.setPosition(this.body, {
+            x: this.x,
+            y: this.y
+        })
 
     }
 

@@ -15,6 +15,7 @@ debug = debug('platformer:server');
 _ = require('underscore');
 uniqid = require('uniqid');
 
+
 /**
  * Matter JS
  */
@@ -29,7 +30,6 @@ Bodies = Matter.Bodies;
 /**
  * Global variables
  */
-
 currentGames = {};
 
 /**
@@ -49,10 +49,30 @@ var server = http.createServer(app);
 var io = require('socket.io')(server);
 io.sockets.on('connection', require('../socket.io/socket')());
 
+
+/**
+ * Session
+ */
+session = require("express-session")({
+    secret: "my-secret",
+    resave: true,
+    saveUninitialized: true
+});
+sharedsession = require("express-socket.io-session");
+
+// Use express-session middleware for express
+app.use(session);
+
+// Use shared session middleware for socket.io
+// setting autoSave:true
+io.use(sharedsession(session, {
+    autoSave:true
+}));
+
+
 /**
  * Listen on provided port, on all network interfaces.
  */
-
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
