@@ -17,7 +17,13 @@ class SpriteGenerator {
                 sprite.y = element.position.y
                 break
             case "Ground":
-                // TODO
+                sprite = new PIXI.Graphics()
+                sprite.lineStyle( 4 , 0xFF3300 , 1 )
+                sprite.beginFill( 0x66CCFF )
+                sprite.drawRect( 0 , 0 , element.width , element.height )
+                sprite.endFill()
+                sprite.x = element.position.x
+                sprite.y = element.position.y
 
         }
         return sprite

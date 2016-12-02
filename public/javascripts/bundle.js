@@ -1,188 +1,4 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-
-},{}],2:[function(require,module,exports){
-// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-} ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-},{}],3:[function(require,module,exports){
 module.exports = after
 
 function after(count, callback, err_cb) {
@@ -212,7 +28,7 @@ function after(count, callback, err_cb) {
 
 function noop() {}
 
-},{}],4:[function(require,module,exports){
+},{}],2:[function(require,module,exports){
 /**
  * An abstraction for slicing an arraybuffer even when
  * ArrayBuffer.prototype.slice is not supported
@@ -243,7 +59,7 @@ module.exports = function(arraybuffer, start, end) {
   return result.buffer;
 };
 
-},{}],5:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 
 /**
  * Expose `Backoff`.
@@ -330,7 +146,7 @@ Backoff.prototype.setJitter = function(jitter){
 };
 
 
-},{}],6:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 /*
  * base64-arraybuffer
  * https://github.com/niklasvh/base64-arraybuffer
@@ -399,7 +215,7 @@ Backoff.prototype.setJitter = function(jitter){
   };
 })();
 
-},{}],7:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 (function (global){
 /**
  * Create a blob builder even when vendor prefixes exist
@@ -499,7 +315,9 @@ module.exports = (function() {
 })();
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],8:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
+
+},{}],7:[function(require,module,exports){
 /**
  * Slice reference.
  */
@@ -524,7 +342,7 @@ module.exports = function(obj, fn){
   }
 };
 
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 
 /**
  * Expose `Emitter`.
@@ -690,7 +508,7 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 
 module.exports = function(a, b){
   var fn = function(){};
@@ -698,7 +516,7 @@ module.exports = function(a, b){
   a.prototype = new fn;
   a.prototype.constructor = a;
 };
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 
 /**
  * This is the web browser implementation of `debug()`.
@@ -868,7 +686,7 @@ function localstorage(){
   } catch (e) {}
 }
 
-},{"./debug":12}],12:[function(require,module,exports){
+},{"./debug":11}],11:[function(require,module,exports){
 
 /**
  * This is the common logic for both the Node.js and web browser
@@ -1067,11 +885,11 @@ function coerce(val) {
   return val;
 }
 
-},{"ms":36}],13:[function(require,module,exports){
+},{"ms":35}],12:[function(require,module,exports){
 
 module.exports = require('./lib/index');
 
-},{"./lib/index":14}],14:[function(require,module,exports){
+},{"./lib/index":13}],13:[function(require,module,exports){
 
 module.exports = require('./socket');
 
@@ -1083,7 +901,7 @@ module.exports = require('./socket');
  */
 module.exports.parser = require('engine.io-parser');
 
-},{"./socket":15,"engine.io-parser":27}],15:[function(require,module,exports){
+},{"./socket":14,"engine.io-parser":26}],14:[function(require,module,exports){
 (function (global){
 /**
  * Module dependencies.
@@ -1825,7 +1643,7 @@ Socket.prototype.filterUpgrades = function (upgrades) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./transport":16,"./transports/index":17,"component-emitter":23,"debug":24,"engine.io-parser":27,"indexof":32,"parsejson":37,"parseqs":38,"parseuri":39}],16:[function(require,module,exports){
+},{"./transport":15,"./transports/index":16,"component-emitter":22,"debug":23,"engine.io-parser":26,"indexof":31,"parsejson":36,"parseqs":37,"parseuri":38}],15:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -1984,7 +1802,7 @@ Transport.prototype.onClose = function () {
   this.emit('close');
 };
 
-},{"component-emitter":23,"engine.io-parser":27}],17:[function(require,module,exports){
+},{"component-emitter":22,"engine.io-parser":26}],16:[function(require,module,exports){
 (function (global){
 /**
  * Module dependencies
@@ -2041,7 +1859,7 @@ function polling (opts) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./polling-jsonp":18,"./polling-xhr":19,"./websocket":21,"xmlhttprequest-ssl":22}],18:[function(require,module,exports){
+},{"./polling-jsonp":17,"./polling-xhr":18,"./websocket":20,"xmlhttprequest-ssl":21}],17:[function(require,module,exports){
 (function (global){
 
 /**
@@ -2276,7 +2094,7 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./polling":20,"component-inherit":10}],19:[function(require,module,exports){
+},{"./polling":19,"component-inherit":9}],18:[function(require,module,exports){
 (function (global){
 /**
  * Module requirements.
@@ -2704,7 +2522,7 @@ function unloadHandler () {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./polling":20,"component-emitter":23,"component-inherit":10,"debug":24,"xmlhttprequest-ssl":22}],20:[function(require,module,exports){
+},{"./polling":19,"component-emitter":22,"component-inherit":9,"debug":23,"xmlhttprequest-ssl":21}],19:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -2951,7 +2769,7 @@ Polling.prototype.uri = function () {
   return schema + '://' + (ipv6 ? '[' + this.hostname + ']' : this.hostname) + port + this.path + query;
 };
 
-},{"../transport":16,"component-inherit":10,"debug":24,"engine.io-parser":27,"parseqs":38,"xmlhttprequest-ssl":22,"yeast":55}],21:[function(require,module,exports){
+},{"../transport":15,"component-inherit":9,"debug":23,"engine.io-parser":26,"parseqs":37,"xmlhttprequest-ssl":21,"yeast":55}],20:[function(require,module,exports){
 (function (global){
 /**
  * Module dependencies.
@@ -3240,7 +3058,7 @@ WS.prototype.check = function () {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../transport":16,"component-inherit":10,"debug":24,"engine.io-parser":27,"parseqs":38,"ws":1,"yeast":55}],22:[function(require,module,exports){
+},{"../transport":15,"component-inherit":9,"debug":23,"engine.io-parser":26,"parseqs":37,"ws":6,"yeast":55}],21:[function(require,module,exports){
 (function (global){
 // browser shim for xmlhttprequest module
 
@@ -3281,7 +3099,7 @@ module.exports = function (opts) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"has-cors":31}],23:[function(require,module,exports){
+},{"has-cors":30}],22:[function(require,module,exports){
 
 /**
  * Expose `Emitter`.
@@ -3446,7 +3264,7 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{}],24:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 (function (process){
 
 /**
@@ -3627,7 +3445,7 @@ function localstorage(){
 }
 
 }).call(this,require('_process'))
-},{"./debug":25,"_process":2}],25:[function(require,module,exports){
+},{"./debug":24,"_process":39}],24:[function(require,module,exports){
 
 /**
  * This is the common logic for both the Node.js and web browser
@@ -3829,7 +3647,7 @@ function coerce(val) {
   return val;
 }
 
-},{"ms":26}],26:[function(require,module,exports){
+},{"ms":25}],25:[function(require,module,exports){
 /**
  * Helpers.
  */
@@ -3980,7 +3798,7 @@ function plural(ms, n, name) {
   return Math.ceil(ms / n) + ' ' + name + 's'
 }
 
-},{}],27:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 (function (global){
 /**
  * Module dependencies.
@@ -4593,7 +4411,7 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./keys":28,"after":3,"arraybuffer.slice":4,"base64-arraybuffer":6,"blob":7,"has-binary":29,"wtf-8":54}],28:[function(require,module,exports){
+},{"./keys":27,"after":1,"arraybuffer.slice":2,"base64-arraybuffer":4,"blob":5,"has-binary":28,"wtf-8":54}],27:[function(require,module,exports){
 
 /**
  * Gets the keys for an object.
@@ -4614,7 +4432,7 @@ module.exports = Object.keys || function keys (obj){
   return arr;
 };
 
-},{}],29:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 (function (global){
 
 /*
@@ -4676,7 +4494,7 @@ function hasBinary(data) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"isarray":33}],30:[function(require,module,exports){
+},{"isarray":32}],29:[function(require,module,exports){
 (function (global){
 
 /*
@@ -4739,7 +4557,7 @@ function hasBinary(data) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"isarray":33}],31:[function(require,module,exports){
+},{"isarray":32}],30:[function(require,module,exports){
 
 /**
  * Module exports.
@@ -4758,7 +4576,7 @@ try {
   module.exports = false;
 }
 
-},{}],32:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 
 var indexOf = [].indexOf;
 
@@ -4769,12 +4587,12 @@ module.exports = function(arr, obj){
   }
   return -1;
 };
-},{}],33:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 module.exports = Array.isArray || function (arr) {
   return Object.prototype.toString.call(arr) == '[object Array]';
 };
 
-},{}],34:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v3.1.1
  * https://jquery.com/
@@ -14996,7 +14814,7 @@ if ( !noGlobal ) {
 return jQuery;
 } );
 
-},{}],35:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 (function (global){
 /*! JSON v3.3.2 | http://bestiejs.github.io/json3 | Copyright 2012-2014, Kit Cambridge | http://kit.mit-license.org */
 ;(function () {
@@ -15902,7 +15720,7 @@ return jQuery;
 }).call(this);
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],36:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 /**
  * Helpers.
  */
@@ -16029,7 +15847,7 @@ function plural(ms, n, name) {
   return Math.ceil(ms / n) + ' ' + name + 's';
 }
 
-},{}],37:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 (function (global){
 /**
  * JSON parse.
@@ -16064,7 +15882,7 @@ module.exports = function parsejson(data) {
   }
 };
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],38:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 /**
  * Compiles a querystring
  * Returns string representation of the object
@@ -16103,7 +15921,7 @@ exports.decode = function(qs){
   return qry;
 };
 
-},{}],39:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 /**
  * Parses an URI
  *
@@ -16143,6 +15961,188 @@ module.exports = function parseuri(str) {
 
     return uri;
 };
+
+},{}],39:[function(require,module,exports){
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
 
 },{}],40:[function(require,module,exports){
 
@@ -16817,7 +16817,7 @@ Manager.prototype.onreconnect = function () {
   this.emitAll('reconnect', attempt);
 };
 
-},{"./on":42,"./socket":43,"backo2":5,"component-bind":8,"component-emitter":45,"debug":46,"engine.io-client":13,"indexof":32,"socket.io-parser":50}],42:[function(require,module,exports){
+},{"./on":42,"./socket":43,"backo2":3,"component-bind":7,"component-emitter":45,"debug":46,"engine.io-client":12,"indexof":31,"socket.io-parser":50}],42:[function(require,module,exports){
 
 /**
  * Module exports.
@@ -17264,7 +17264,7 @@ Socket.prototype.compress = function (compress) {
   return this;
 };
 
-},{"./on":42,"component-bind":8,"component-emitter":45,"debug":46,"has-binary":30,"socket.io-parser":50,"to-array":52}],44:[function(require,module,exports){
+},{"./on":42,"component-bind":7,"component-emitter":45,"debug":46,"has-binary":29,"socket.io-parser":50,"to-array":52}],44:[function(require,module,exports){
 (function (global){
 
 /**
@@ -17343,15 +17343,15 @@ function url (uri, loc) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"debug":46,"parseuri":39}],45:[function(require,module,exports){
+},{"debug":46,"parseuri":38}],45:[function(require,module,exports){
+arguments[4][22][0].apply(exports,arguments)
+},{"dup":22}],46:[function(require,module,exports){
 arguments[4][23][0].apply(exports,arguments)
-},{"dup":23}],46:[function(require,module,exports){
+},{"./debug":47,"_process":39,"dup":23}],47:[function(require,module,exports){
 arguments[4][24][0].apply(exports,arguments)
-},{"./debug":47,"_process":2,"dup":24}],47:[function(require,module,exports){
+},{"dup":24,"ms":48}],48:[function(require,module,exports){
 arguments[4][25][0].apply(exports,arguments)
-},{"dup":25,"ms":48}],48:[function(require,module,exports){
-arguments[4][26][0].apply(exports,arguments)
-},{"dup":26}],49:[function(require,module,exports){
+},{"dup":25}],49:[function(require,module,exports){
 (function (global){
 /*global Blob,File*/
 
@@ -17496,7 +17496,7 @@ exports.removeBlobs = function(data, callback) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./is-buffer":51,"isarray":33}],50:[function(require,module,exports){
+},{"./is-buffer":51,"isarray":32}],50:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -17902,7 +17902,7 @@ function error(data){
   };
 }
 
-},{"./binary":49,"./is-buffer":51,"component-emitter":9,"debug":11,"json3":35}],51:[function(require,module,exports){
+},{"./binary":49,"./is-buffer":51,"component-emitter":8,"debug":10,"json3":34}],51:[function(require,module,exports){
 (function (global){
 
 module.exports = isBuf;
@@ -19844,7 +19844,6 @@ class Game {
             // if the PhysicalElement is already known and has a sprite
             if (this.getPhysicalElement(physicalElement)){
 
-                console.log("move")
                 // update the local pseudo PhysicalElement (and his corresponding Sprite) from the pseudo PhysicalElement infos
                 this.updatePhysicalElement(physicalElement);
 
@@ -19900,7 +19899,8 @@ class Game {
 
             if ( _element.id === element.id ){
 
-                this.currentGameInfos.physicalElements[index].sprite.moveTo( element.position.x , element.position.y )
+                console.log("move to ",element.position.x,element.position.y)
+                this.currentGameInfos.physicalElements[index].sprite.setTransform(element.position.x, element.position.y);
 
             }
 
@@ -19942,11 +19942,17 @@ class SpriteGenerator {
                 sprite.beginFill( 0x66CCFF )
                 sprite.drawRect( 0 , 0 , element.width , element.height )
                 sprite.endFill()
-                sprite.x = element.x
-                sprite.y = element.y
+                sprite.x = element.position.x
+                sprite.y = element.position.y
                 break
             case "Ground":
-                // TODO
+                sprite = new PIXI.Graphics()
+                sprite.lineStyle( 4 , 0xFF3300 , 1 )
+                sprite.beginFill( 0x66CCFF )
+                sprite.drawRect( 0 , 0 , element.width , element.height )
+                sprite.endFill()
+                sprite.x = element.position.x
+                sprite.y = element.position.y
 
         }
         return sprite
@@ -19976,6 +19982,7 @@ game = null
 
     socket.on('connected', (data) => { // when connected
         console.log("connected")
+        socket.emit("newGame",{fps:61,name:"testtt",map:"testmap"})
     })
 
     socket.on('disconnected', (data) => { // when disconnected
@@ -20041,4 +20048,6 @@ game = null
     })
 
 }
-},{"./Game.js":56,"jquery":34,"socket.io-client":40,"underscore":53}]},{},[58]);
+
+
+},{"./Game.js":56,"jquery":33,"socket.io-client":40,"underscore":53}]},{},[58]);

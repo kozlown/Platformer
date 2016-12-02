@@ -105,6 +105,7 @@ class Game {
             if ( _element.id === element.id ){
 
                 console.log("move to ",element.position.x,element.position.y)
+                this.currentGameInfos.physicalElements[index].sprite.setTransform(element.position.x, element.position.y);
 
             }
 
