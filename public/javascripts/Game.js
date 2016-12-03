@@ -42,6 +42,8 @@ class Game {
      */
     update( gameUpdateInfos ){
 
+        this.setCameraPosition( gameUpdateInfos.playerPosition )
+
         // update all locals pseudo PhysicalElements (and their corresponding Sprites)
         _.each( gameUpdateInfos.physicalElements , ( physicalElement )=>{
 
@@ -128,6 +130,19 @@ class Game {
         this.stage.addChild( this.currentGameInfos.physicalElements[index].sprite )
 
     }
+
+    /**
+     * @method setCameraPosition
+     * @description set the camera position (stage's position)
+     * @param {Object} position
+     */
+    setCameraPosition( position ){
+
+        this.stage.position.x = position.x + this.renderer.width / 2
+        this.stage.position.y = position.y + this.renderer.height / 2
+
+    }
+
 
 }
 

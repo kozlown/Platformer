@@ -91,7 +91,13 @@ class Game {
         // TODO make the infos depend on the player to whom the infos will be given
 
         let gameUpdateInfos = {
-            physicalElements : []
+            physicalElements: [],
+            cameraPosition: {}
+        }
+
+        gameUpdateInfos.playerPosition = {
+            x: -player.body.position.x,
+            y: -player.body.position.y
         }
 
         // add all PhysicalElements being in the Game
