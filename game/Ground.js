@@ -21,8 +21,7 @@ class Ground extends PhysicalElement{
      */
     constructor(x,y,width,height,isStatic=true){
         super(x,y,width,height)
-        this.name = name
-        this.body = new Bodies.rectangle(x, y, width, height, {
+        this.body = new Bodies.rectangle(x + width / 2, y + height / 2, width, height, {
             isStatic: isStatic
         })
     }

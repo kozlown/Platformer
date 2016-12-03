@@ -19,7 +19,7 @@ game = null
 
     socket.on('connected', (data) => { // when connected
         console.log("connected")
-        socket.emit("newGame",{fps:61,name:"testtt",map:"testmap"})
+        socket.emit("newGame",{fps:60,name:"testtt",map:"testmap"})
     })
 
     socket.on('disconnected', (data) => { // when disconnected

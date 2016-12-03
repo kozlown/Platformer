@@ -42,7 +42,6 @@ class Game {
      */
     update( gameUpdateInfos ){
 
-        console.log("gameUpdateInfos : ",gameUpdateInfos,"this.currentGameInfos.physicalElements : ", this.currentGameInfos.physicalElements)
         // update all locals pseudo PhysicalElements (and their corresponding Sprites)
         _.each( gameUpdateInfos.physicalElements , ( physicalElement )=>{
 
@@ -55,7 +54,6 @@ class Game {
             }
             else {
 
-                console.log("create")
                 // else create a Sprite from the pseudo PhysicalElement infos
                 this.createPhysicalElement(physicalElement)
 
@@ -90,7 +88,9 @@ class Game {
 
 
         } )
+
         return retour
+
     }
 
     /**
@@ -100,16 +100,17 @@ class Game {
      * @param {Object} element
      */
     updatePhysicalElement ( element ){
+
         _.each(this.currentGameInfos.physicalElements, ( _element , index )=>{
 
             if ( _element.id === element.id ){
 
-                console.log("move to ",element.position.x,element.position.y)
-                this.currentGameInfos.physicalElements[index].sprite.setTransform(element.position.x, element.position.y);
+                this.currentGameInfos.physicalElements[index].sprite.setTransform(element.position.x - element.width / 2, element.position.y - element.height / 2);
 
             }
 
         } )
+
     }
 
     /**

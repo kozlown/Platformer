@@ -19837,7 +19837,6 @@ class Game {
      */
     update( gameUpdateInfos ){
 
-        console.log("gameUpdateInfos : ",gameUpdateInfos,"this.currentGameInfos.physicalElements : ", this.currentGameInfos.physicalElements)
         // update all locals pseudo PhysicalElements (and their corresponding Sprites)
         _.each( gameUpdateInfos.physicalElements , ( physicalElement )=>{
 
@@ -19850,7 +19849,6 @@ class Game {
             }
             else {
 
-                console.log("create")
                 // else create a Sprite from the pseudo PhysicalElement infos
                 this.createPhysicalElement(physicalElement)
 
@@ -19885,7 +19883,9 @@ class Game {
 
 
         } )
+
         return retour
+
     }
 
     /**
@@ -19895,16 +19895,17 @@ class Game {
      * @param {Object} element
      */
     updatePhysicalElement ( element ){
+
         _.each(this.currentGameInfos.physicalElements, ( _element , index )=>{
 
             if ( _element.id === element.id ){
 
-                console.log("move to ",element.position.x,element.position.y)
-                this.currentGameInfos.physicalElements[index].sprite.setTransform(element.position.x, element.position.y);
+                this.currentGameInfos.physicalElements[index].sprite.setTransform(element.position.x - element.width / 2, element.position.y - element.height / 2);
 
             }
 
         } )
+
     }
 
     /**
@@ -19938,22 +19939,21 @@ class SpriteGenerator {
         switch ( element.type ){
             case "Player":
                 sprite = new PIXI.Graphics()
-                sprite.lineStyle( 4 , 0xFF3300 , 1 )
+                sprite.lineStyle( 1 , 0xFF3300 , 1 )
                 sprite.beginFill( 0x66CCFF )
                 sprite.drawRect( 0 , 0 , element.width , element.height )
                 sprite.endFill()
-                sprite.x = element.position.x
-                sprite.y = element.position.y
+                sprite.x = element.position.x - element.width / 2
+                sprite.y = element.position.y - element.height / 2
                 break
             case "Ground":
                 sprite = new PIXI.Graphics()
-                sprite.lineStyle( 4 , 0xFF3300 , 1 )
+                sprite.lineStyle( 1 , 0xFF3300 , 1 )
                 sprite.beginFill( 0x66CCFF )
                 sprite.drawRect( 0 , 0 , element.width , element.height )
                 sprite.endFill()
-                sprite.x = element.position.x
-                sprite.y = element.position.y
-
+                sprite.x = element.position.x - element.width / 2
+                sprite.y = element.position.y - element.height / 2
         }
         return sprite
     }
@@ -19982,7 +19982,7 @@ game = null
 
     socket.on('connected', (data) => { // when connected
         console.log("connected")
-        socket.emit("newGame",{fps:61,name:"testtt",map:"testmap"})
+        socket.emit("newGame",{fps:60,name:"testtt",map:"testmap"})
     })
 
     socket.on('disconnected', (data) => { // when disconnected

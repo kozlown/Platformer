@@ -35,6 +35,32 @@ module.exports = ( ()=>{
         socket.on( `keydown` ,( keyCode )=>{
 
             console.log(`key down : ${ keyCode }`)
+            
+            switch ( keyCode ){
+
+                /**
+                 * Left
+                 */
+                case 37:
+                    socket.player.moveLeft()
+                    break
+
+                /**
+                 * Right
+                 */
+                case 39:
+                    socket.player.moveRight()
+                    break
+
+                /**
+                 * Jump
+                 */
+                case 38:
+                    socket.player.jump()
+                    break
+            }
+
+
 
         })
 

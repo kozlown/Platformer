@@ -1,6 +1,7 @@
 /**
  * Created by Nigel on 26/11/2016.
  */
+let Ground = require("./Ground.js")
 
 /**
  * @class Game
@@ -24,6 +25,8 @@ class Game {
 
         // create the engine of the game
         this.engine = Engine.create()
+
+        this.addPhysicalElement(new Ground(20,300,300,10))
 
         // add the game to all games
         currentGames[this.id] = this
@@ -51,7 +54,6 @@ class Game {
 
         // Send informations to the players
         _.each( this.getPhysicalElementsOfType( "Player" ) ,(player)=>{
-            console.log(this.getGameUpdateInfos(player).physicalElements)
             player.socket.emit("gameUpdate", this.getGameUpdateInfos(player))
         })
 
