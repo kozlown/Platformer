@@ -90,7 +90,7 @@ module.exports = ( ()=>{
 
         socket.on( `newGame` , ( gameInfos )=>{
 
-            let game = new Game( gameInfos.name , gameInfos.fps , [socket.player.name] , gameInfos.map )
+            let game = new Game( gameInfos.name , gameInfos.fps , gameInfos.map )
             if ( game ){ // if the creation worked
                 // send current games to everybody
                 socket.emit( 'newGame' , game.getGameUpdateInfos( socket.player ) )

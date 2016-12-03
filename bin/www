@@ -14,6 +14,7 @@ error = debug('error');
 debug = debug('platformer:server');
 _ = require('underscore');
 uniqid = require('uniqid');
+fs = require('fs');
 
 
 /**

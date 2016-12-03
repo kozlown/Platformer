@@ -20,13 +20,13 @@ class Game {
         this.id = uniqid()
         this.name = name
         this.fps = fps
-        this.map = map
         this.physicalElements = []
 
         // create the engine of the game
         this.engine = Engine.create()
 
-        this.addPhysicalElement(new Ground(20,300,300,10))
+        // load the map
+        this.loadMap(map)
 
         // add the game to all games
         currentGames[this.id] = this
@@ -159,6 +159,35 @@ class Game {
         // remove the player physically from the world of the game
         World.remove(this.engine.world, element.body, true);
     }
+
+    /**
+     * @method loadMap
+     * @description load a map
+     * @param {String} map
+     */
+    loadMap( map ){
+
+        map = JSON.parse(fs.readFileSync(`./game/maps/${map}.map`,{
+            encoding: 'utf8'
+        })).map
+
+        // Add all elements to the game
+        _.each( map , ( value , index , array )=>{
+
+            switch ( value.type ){
+                case "Ground":
+                    console.log(value.position.x , value.position.y , value.width , value.height)
+                    this.addPhysicalElement( new Ground( value.position.x , value.position.y , value.width , value.height ) )
+                    break
+            }
+
+        })
+
+
+
+    }
+
+
 
 }
 

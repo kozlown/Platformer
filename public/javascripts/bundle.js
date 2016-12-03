@@ -19997,7 +19997,7 @@ game = null
 
     socket.on('connected', (data) => { // when connected
         console.log("connected")
-        socket.emit("newGame",{fps:60,name:"testtt",map:"testmap"})
+        socket.emit("newGame",{fps:60,name:"testGame",map:"map1"})
     })
 
     socket.on('disconnected', (data) => { // when disconnected
@@ -20021,7 +20021,7 @@ game = null
     socket.on('newGame', (data) => { // when receiving informations the new game creation
 
         console.log("new game : ", data )
-        game = new Game( 500 , 500 , "#renderer" , data )
+        game = new Game( $( window ).width() , $( window ).height() , "#renderer" , data )
         socket.on('gameUpdate', game.update.bind(game))
 
     })
@@ -20044,7 +20044,7 @@ game = null
 
             keysDown.add(e.which)
             socket.emit("keydown", e.which)
-            console.log(keysDown)
+            //console.log(keysDown)
 
         }
 
@@ -20056,7 +20056,7 @@ game = null
 
             keysDown.delete(e.which)
             socket.emit("keyup", e.which)
-            console.log(keysDown)
+            //console.log(keysDown)
 
         }
 
