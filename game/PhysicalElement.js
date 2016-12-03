@@ -17,6 +17,7 @@ class PhysicalElement {
         this.y = y
         this.width = width
         this.height = height
+        this.state = {}
         this.id = uniqid()
     }
 

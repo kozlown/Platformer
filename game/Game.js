@@ -50,6 +50,12 @@ class Game {
      * @description Go to the next state of the game
      */
     step(){
+        _.each( this.getPhysicalElementsOfType( "Player" ) ,(player)=>{
+
+            player.move()
+
+        })
+
         Engine.update(this.engine, 1000 / this.fps); // Update the Engine
 
         // Send informations to the players

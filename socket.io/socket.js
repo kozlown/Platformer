@@ -42,14 +42,14 @@ module.exports = ( ()=>{
                  * Left
                  */
                 case 37:
-                    socket.player.moveLeft()
+                    socket.player.state.isMovingLeft = true
                     break
 
                 /**
                  * Right
                  */
                 case 39:
-                    socket.player.moveRight()
+                    socket.player.state.isMovingRight = true
                     break
 
                 /**
@@ -67,6 +67,24 @@ module.exports = ( ()=>{
         socket.on( `keyup` ,( keyCode )=>{
 
             console.log( `key up : ${keyCode}` )
+
+            switch ( keyCode ){
+
+                /**
+                 * Left
+                 */
+                case 37:
+                    socket.player.state.isMovingLeft = false
+                    break
+
+                /**
+                 * Right
+                 */
+                case 39:
+                    socket.player.state.isMovingRight = false
+                    break
+
+            }
 
         } )
 
