@@ -5,38 +5,38 @@ var Ground = require( '../game/Ground' );
 
 module.exports = ( ()=>{
 
-    return ( ( socket )=>{
+    return (socket) => {
 
-        socket.on( 'login' , ( playerInfos )=>{
+        socket.on('login', (playerInfos) => {
 
             // create a new player linked with the socket
             socket.player =
-                new Player( playerInfos.name , playerInfos.x , playerInfos.y , playerInfos.width , playerInfos.height , socket )
+                new Player(playerInfos.name, playerInfos.x, playerInfos.y, playerInfos.width, playerInfos.height, socket)
 
             console.log(`${socket.player.name} is connected`)
             // tell the player that the login worked
-            socket.emit( `connected` )
+            socket.emit(`connected`)
 
             // send current games to the player
-            socket.emit( `currentGames` , Object.keys( currentGames ))
+            socket.emit(`currentGames`, Object.keys(currentGames))
 
-        } );
+        });
 
-        socket.on( `logout` , ()=>{
+        socket.on(`logout`, () => {
 
             // if the player was playing, he leaves the game
-            if ( socket.player.game != null )
-                currentGames[ socket.player.game ].removePlayer( socket.player )
+            if (socket.player.game != null)
+                currentGames[socket.player.game].removePlayer(socket.player)
 
-            socket.emit( `disconnected` );
+            socket.emit(`disconnected`);
 
-        } );
+        });
 
-        socket.on( `keydown` ,( keyCode )=>{
+        socket.on(`keydown`, (keyCode) => {
 
-            console.log(`key down : ${ keyCode }`)
-            
-            switch ( keyCode ){
+            //console.log(`key down : ${ keyCode }`)
+
+            switch (keyCode) {
 
                 /**
                  * Left
@@ -61,14 +61,13 @@ module.exports = ( ()=>{
             }
 
 
-
         })
 
-        socket.on( `keyup` ,( keyCode )=>{
+        socket.on(`keyup`, (keyCode) => {
 
-            console.log( `key up : ${keyCode}` )
+            //console.log( `key up : ${keyCode}` )
 
-            switch ( keyCode ){
+            switch (keyCode) {
 
                 /**
                  * Left
@@ -86,33 +85,41 @@ module.exports = ( ()=>{
 
             }
 
-        } )
+        })
 
-        socket.on( `newGame` , ( gameInfos )=>{
+        socket.on(`newGame`, (gameInfos) => {
 
-            let game = new Game( gameInfos.name , gameInfos.fps , gameInfos.map )
-            if ( game ){ // if the creation worked
+            let game = new Game(gameInfos.name, gameInfos.fps, gameInfos.map)
+            if (game) { // if the creation worked
                 // send current games to everybody
-                socket.emit( 'newGame' , game.getGameUpdateInfos( socket.player ) )
-                socket.emit( 'currentGames' , Object.keys( currentGames ) )
-                socket.broadcast.emit( 'currentGames' , Object.keys( currentGames ) )
+                socket.emit('newGame', game.getGameUpdateInfos(socket.player))
+
+                let currentGamesInfos = []
+                _.each(Object.keys(currentGames), (value, index, array) => {
+                    currentGamesInfos.push({
+                        id: value,
+                        name: currentGames[value].name,
+                        players: (() => {
+                            let retour = []
+                            _.each(currentGames[value].physicalElements, (value, index, array) => {
+                                if (value.constructor.name === "Player") {
+                                    retour.push({
+                                        name: value.name
+                                    })
+                                }
+                            })
+
+                            return retour
+                        })()
+                    })
+
+                })
+
+                socket.emit('currentGames', currentGamesInfos)
+                socket.broadcast.emit('currentGames', currentGamesInfos)
 
                 return
             }
-            socket.emit( `newGame` , false )
-
-        } )
-
-        socket.on( `joinGame` , ( gameId )=>{
-
-            currentGames[ gameId ].addPhysicalElement( socket.player )
-
-        } )
-
-        socket.on( `startGame` , ( gameId )=>{
-
-            currentGames[ gameId ].start()
-
-        } )
-    } )
+        })
+    }
 } );

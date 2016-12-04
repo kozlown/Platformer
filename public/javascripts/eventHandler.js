@@ -1,5 +1,7 @@
 Game = require("./Game.js")
-$ = require("jquery")
+jQuery = require("jquery")
+$ = jQuery
+require('bootstrap')
 _ = require("underscore")
 io = require('socket.io-client')
 socket = io('http://localhost:3000'); // set the socket
@@ -37,6 +39,13 @@ game = null
     socket.on('currentGames', (data) => { // when receiving informations about the current games
 
         console.log(`current games : `, data)
+        $( "#games .game" ).html("")
+        _.each( data , ( value , index , array )=>{
+
+            $( "#games" ).append( `<div class="game"><span>${value.id + " - " + value.name}</span>
+                    <a  class="btn btn-lg btn-outline" onclick="alert('Hello world!')">Join !</a></div>` )
+            
+        })
 
     })
 

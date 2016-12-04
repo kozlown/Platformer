@@ -1,8 +1,10 @@
 extends layout
 block content
-    h1(style="color: white")= title
-    p Welcome to #{welcome}
-    div#renderer(style="position: fixed; top: 0; left: 0; z-index: -1; width: 100%; height: 100%")
+    div#welcome
+        h1= title
+    div#games
+        h1= "Games"
+    div#renderer
 
     // scripts
     script(src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.2.2/pixi.min.js")
