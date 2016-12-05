@@ -57,11 +57,11 @@ a {
 }
 #games .game span, #games #newGame .form-group {
     display: inline-block;
-    width: 65%;
+    width: 50%;
     margin-left: 5%;
 }
 #games .game .btn, #games #newGame .btn {
-    width: 20%;
+    width: auto;
     margin-left: 5%;
     border-color: white;
     color: white;
