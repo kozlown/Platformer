@@ -89,11 +89,10 @@ module.exports = ( ()=>{
 
         socket.on(`newGame`, (gameInfos) => {
 
-            let game = new Game(gameInfos.name, gameInfos.fps, gameInfos.map)
+            let game = new Game(gameInfos.name, gameInfos.map)
             if (game) { // if the creation worked
-                // send current games to everybody
-                socket.emit('newGame', game.getGameUpdateInfos(socket.player))
 
+                // send current games to everybody
                 let currentGamesInfos = Game.getCurrentGamesInfos()
 
                 socket.emit('currentGames', currentGamesInfos)
@@ -131,6 +130,9 @@ module.exports = ( ()=>{
              * make him join the new game
              */
             currentGames[ gameId ].addPhysicalElement( socket.player )
+
+            // he get the infos so he can display the map
+            socket.emit("newGame",  currentGames[ gameId ].getGameUpdateInfos(socket.player))
 
             /**
              * Send new current games infos to the players

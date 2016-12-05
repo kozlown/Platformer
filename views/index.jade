@@ -1,9 +1,22 @@
 extends layout
 block content
-    div#welcome
-        h1= title
-    div#games
-        h1= "Games"
+    #menu
+        #welcome
+            h1= title
+        #games
+            div#newGame
+                form.form-inline
+                    .form-group
+                        input(placeholder="Name of the game").form-control.name
+                        div.option
+                            label(for='sel2') Map:
+                            select#sel2.form-control.map
+                                option(selected=true) map1
+                                option map2
+                                option map3
+                                option map4
+                    a.btn.btn-lg.btn-outline.create Create
+            h1= "Games"
     div#renderer
 
     // scripts

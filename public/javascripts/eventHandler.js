@@ -6,6 +6,7 @@ _ = require("underscore")
 io = require('socket.io-client')
 socket = io('http://localhost:3000'); // set the socket
 
+
 game = null
 /**
 @description SOCKET CONNECTION
@@ -20,8 +21,12 @@ game = null
     }) // try to login
 
     socket.on('connected', (data) => { // when connected
-        console.log("connected")
-        socket.emit("newGame",{fps:60,name:"testGame",map:"map1"})
+
+        console.log("connected");
+        $('#newGame .create').click(()=>{
+
+            socket.emit("newGame",{name:$("#newGame .name").val(),map:$("#newGame .map").val()})
+        })
     })
 
     socket.on('disconnected', (data) => { // when disconnected
@@ -61,6 +66,7 @@ game = null
     socket.on('newGame', (data) => { // when receiving informations the new game creation
 
         console.log("new game : ", data )
+        $("#renderer").empty()
         game = new Game( $( window ).width() , $( window ).height() , "#renderer" , data )
         socket.on('gameUpdate', game.update.bind(game))
 
@@ -86,6 +92,12 @@ game = null
             socket.emit("keydown", e.which)
             //console.log(keysDown)
 
+        }
+        /**
+         * Menu
+         */
+        if (e.keyCode == 27){
+            $('#menu').toggle()
         }
 
     })

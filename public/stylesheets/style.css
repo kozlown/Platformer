@@ -1,28 +1,44 @@
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+    padding: 50px;
+    background-color: black !important;
+    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
 
 a {
-  color: #00B7FF;
+    color: #00B7FF;
 }
-
+#menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255,255,255, 0.2)
+}
 #welcome {
-  width: 40%;
-  left: 5%;
-  top: 5%;
-  position: absolute;
-  color: white;
+    width: 40%;
+    left: 5%;
+    top: 5%;
+    position: absolute;
+    color: white;
 }
 
 #games {
-  width: 30%;
-  left: 65%;
-  top: 5%;
-  position: absolute;
-  color: white;
+    width: 30%;
+    left: 65%;
+    top: 5%;
+    height: 60%;
+    position: absolute;
+    color: white;
 }
-
+#games #newGame {
+    /*background-color: rgba(255,255,255,0.3);*/
+    padding: 10px;
+    border-radius: 3px;
+}
+#games #newGame .name * {
+    margin: 0px 15px 0px 15px;
+}
 #games h1 {
     width: 100%;
     text-align: center;
@@ -39,15 +55,41 @@ a {
     background-color: rgba(255,255,255,0.3);
     cursor: pointer;
 }
-#games .game span {
+#games .game span, #games #newGame .form-group {
     display: inline-block;
     width: 65%;
     margin-left: 5%;
 }
-#games .game .btn {
+#games .game .btn, #games #newGame .btn {
     width: 20%;
     margin-left: 5%;
     border-color: white;
+    color: white;
+}
+#games .game .btn:hover, #games #newGame .btn:hover {
+    background-color: gray;
+}
+#games #newGame{
+    padding: 0px;
+    height: 10%;
+    margin-bottom: 30%;
+}
+#games #newGame .form-group select {
+    margin-left: 5px;
+}
+#games #newGame .form-group select option {
+    background-color: black;
+}
+#games #newGame .option {
+    margin-top: 5px;
+}
+#games #newGame .option select {
+    background-color: transparent;
+    color: white;
+}
+#games #newGame .name {
+    background-color: transparent;
+    border: 1px solid white;
     color: white;
 }
 #games .game .players {

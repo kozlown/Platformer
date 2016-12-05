@@ -15,11 +15,10 @@ class Game {
      * @param {Number} fps
      * @param {String} map
      */
-    constructor(name, fps, map) {
+    constructor(name, map) {
 
         this.id = uniqid()
         this.name = name
-        this.fps = fps
         this.physicalElements = []
 
         let validName = true
@@ -51,7 +50,7 @@ class Game {
     start() {
 
         // launch the main loop and save it, so it will be stopped when the game stop
-        this.mainLoop = setInterval(this.step.bind(this), 1000 / this.fps);
+        this.mainLoop = setInterval(this.step.bind(this), 1000 / 60);
 
         console.log(`Game started !`)
 
@@ -62,18 +61,20 @@ class Game {
      * @description Go to the next state of the game
      */
     step(){
+
         _.each( this.getPhysicalElementsOfType( "Player" ) ,(player)=>{
 
             player.move()
 
         })
 
-        Engine.update(this.engine, 1000 / this.fps); // Update the Engine
+        Engine.update(this.engine, 1000 / 60); // Update the Engine
 
         // Send informations to the players
         _.each( this.getPhysicalElementsOfType( "Player" ) ,(player)=>{
             player.socket.emit("gameUpdate", this.getGameUpdateInfos(player))
         })
+
 
     }
 
