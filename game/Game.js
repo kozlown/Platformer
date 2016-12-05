@@ -35,6 +35,36 @@ class Game {
 
         // create the engine of the game
         this.engine = Engine.create()
+        // TODO collision handler for player
+        Events.on(this.engine, "collisionStart", (e)=>{
+
+            _.each( e.pairs , ( value , index , array )=>{
+
+                let isPlayerA = this.getPhysicalElementFromBody(value.bodyA)
+                let isPlayerB = this.getPhysicalElementFromBody(value.bodyB)
+
+                //console.log(isPlayerA, isPlayerB)
+                if (isPlayerA && isPlayerA.constructor.name === "Player"){
+
+                    // if he's goin down
+                    if (isPlayerA.body.velocity.y > 0){
+                        isPlayerA.jumpsUsed = 0
+                    }
+                }
+                else if (isPlayerB && isPlayerB.constructor.name === "Player"){
+
+                    // if he's goin down
+                    if (isPlayerB.body.velocity.y > 0){
+                        isPlayerB.jumpsUsed = 0
+                    }
+                }
+
+            })
+        })
+
+
+        // greater gravity
+        this.engine.world.gravity.y = 3
 
         // load the map
         this.loadMap(map)
@@ -200,6 +230,25 @@ class Game {
 
 
 
+    }
+
+    /**
+     * @method getPhysicalElementFromBody
+     * @description get the game physical element's id corresponding with the specified body
+     * @param {Body} body
+     */
+    getPhysicalElementFromBody( body ){
+
+        let returnPhysicalElement=false
+
+        _.each( this.physicalElements , ( value , index , array )=>{
+
+            if (value.body.id === body.id){
+                returnPhysicalElement = value
+            }
+        })
+
+        return returnPhysicalElement
     }
 
     static getCurrentGamesInfos(){

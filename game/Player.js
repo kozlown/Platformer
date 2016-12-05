@@ -23,12 +23,18 @@ class Player extends PhysicalElement{
     constructor(name, x, y, width, height, socket) {
 
         super(x,y,width,height)
+        this.jumpsToUse = 2
+        this.jumpsUsed = 0
         this.name = name
         this.socket = socket
         this.body = new Bodies.rectangle(x, y, width, height, {
-            inertia: Infinity
+            inertia: Infinity,
+            friction: 0,
+            frictionAir: 0.05,
+            mass: 3,
+            inverseMass: 1/2,
+            frictionStatic: 0,
         })
-
     }
 
     /**
@@ -37,7 +43,7 @@ class Player extends PhysicalElement{
      */
     moveLeft(){
 
-        let force = Matter.Vector.create(-0.3 / 60, 0)
+        let force = Matter.Vector.create(-0.5 / 60, 0)
         Body.applyForce(this.body, this.body.position, force)
 
     }
@@ -48,7 +54,7 @@ class Player extends PhysicalElement{
      */
     moveRight(){
 
-        let force = Matter.Vector.create(0.3 / 60, 0)
+        let force = Matter.Vector.create(0.5 / 60, 0)
         Body.applyForce(this.body, this.body.position, force)
 
     }
@@ -59,12 +65,20 @@ class Player extends PhysicalElement{
      */
     jump(){
 
+        // check if the users has jumps
+        if (this.jumpsUsed >= this.jumpsToUse){
+            return
+        }
+
+        // increment the number of jumps used
+        this.jumpsUsed++
+
         // first set the y-velocity to 0
         let velocity = Matter.Vector.create( this.body.velocity.x, 0 )
         Body.setVelocity(this.body, velocity)
 
         // then apply force
-        let force = Matter.Vector.create(0, -0.1)
+        let force = Matter.Vector.create(0, -0.3)
         Body.applyForce(this.body, this.body.position, force)
     }
 

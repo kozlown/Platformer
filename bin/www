@@ -26,8 +26,9 @@ Matter = require('matter-js');
 Engine = Matter.Engine
 Render = Matter.Render
 World = Matter.World
-Bodies = Matter.Bodies;
+Bodies = Matter.Bodies
 Body = Matter.Body
+Events = Matter.Events
 
 /**
  * Global variables
