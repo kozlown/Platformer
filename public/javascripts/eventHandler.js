@@ -36,17 +36,26 @@ game = null
  */
 {
 
-    socket.on('currentGames', (data) => { // when receiving informations about the current games
+    // when receiving informations about the current games
+    socket.on('currentGames', (data)=>{
 
         console.log(`current games : `, data)
-        $( "#games .game" ).html("")
+        $( "#games .game" ).remove()
         _.each( data , ( value , index , array )=>{
 
-            $( "#games" ).append( `<div class="game"><span>${value.id + " - " + value.name}</span>
-                    <a  class="btn btn-lg btn-outline" onclick="alert('Hello world!')">Join !</a></div>` )
-            
-        })
+            let gameId = value.id
+            // title - id - join - start
+            $( "#games" ).append( `<div class="game" id="${gameId}"><span class="name">${value.id + " - " + value.name}</span>`
+                    + `<a  class="btn btn-lg btn-outline" onclick="socket.emit('joinGame','${value.id}')">Join !</a></div>` )
 
+            // players
+            $( `#${gameId}` ).append("<div class='players'></div>")
+            _.each( value.players , ( value , index , array )=>{
+
+                $( `#${gameId} .players` ).append(`<div class="player"><span>${value.name}</span></div>`)
+
+            })
+        })
     })
 
     socket.on('newGame', (data) => { // when receiving informations the new game creation

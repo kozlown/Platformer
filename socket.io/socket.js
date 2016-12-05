@@ -18,7 +18,7 @@ module.exports = ( ()=>{
             socket.emit(`connected`)
 
             // send current games to the player
-            socket.emit(`currentGames`, Object.keys(currentGames))
+            socket.emit(`currentGames`, Game.getCurrentGamesInfos())
 
         });
 
@@ -94,26 +94,7 @@ module.exports = ( ()=>{
                 // send current games to everybody
                 socket.emit('newGame', game.getGameUpdateInfos(socket.player))
 
-                let currentGamesInfos = []
-                _.each(Object.keys(currentGames), (value, index, array) => {
-                    currentGamesInfos.push({
-                        id: value,
-                        name: currentGames[value].name,
-                        players: (() => {
-                            let retour = []
-                            _.each(currentGames[value].physicalElements, (value, index, array) => {
-                                if (value.constructor.name === "Player") {
-                                    retour.push({
-                                        name: value.name
-                                    })
-                                }
-                            })
-
-                            return retour
-                        })()
-                    })
-
-                })
+                let currentGamesInfos = Game.getCurrentGamesInfos()
 
                 socket.emit('currentGames', currentGamesInfos)
                 socket.broadcast.emit('currentGames', currentGamesInfos)
@@ -121,5 +102,22 @@ module.exports = ( ()=>{
                 return
             }
         })
+
+        socket.on( `joinGame` , ( gameId )=>{
+
+            currentGames[ gameId ].addPhysicalElement( socket.player )
+
+            let currentGamesInfos = Game.getCurrentGamesInfos()
+
+            socket.emit('currentGames', currentGamesInfos)
+            socket.broadcast.emit('currentGames', currentGamesInfos)
+
+        } )
+
+        socket.on( `startGame` , ( gameId )=>{
+
+            currentGames[ gameId ].start()
+
+        } )
     }
 } );

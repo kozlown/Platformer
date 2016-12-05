@@ -29,6 +29,15 @@ a {
 }
 #games .game {
     width: 100%;
+    border: solid 1px transparent;
+    padding: 10px 0px 10px 0px;
+    cursor: pointer;
+    border-radius: 3px;
+}
+#games .game:hover{
+    border: solid 1px white;
+    background-color: rgba(255,255,255,0.3);
+    cursor: pointer;
 }
 #games .game span {
     display: inline-block;
@@ -41,7 +50,16 @@ a {
     border-color: white;
     color: white;
 }
-
+#games .game .players {
+    margin: 5%;
+}
+#games .game .players .player {
+    padding: 2px;
+    border-radius: 3px;
+}
+#games .game .players .player:hover {
+    background-color: rgba(0,0,0,0.3);
+}
 #renderer {
     position: fixed;
     top: 0;

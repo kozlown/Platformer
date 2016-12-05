@@ -22,6 +22,18 @@ class Game {
         this.fps = fps
         this.physicalElements = []
 
+        let validName = true
+
+        // Check if a game with this name doesn't already exists
+        _.each( currentGames , ( value , index , array )=>{
+            if ( value.name === name )
+            {
+                validName = false
+            }
+        })
+
+        if (!validName) return false
+
         // create the engine of the game
         this.engine = Engine.create()
 
@@ -187,6 +199,29 @@ class Game {
 
     }
 
+    static getCurrentGamesInfos(){
+        let currentGamesInfos = []
+        _.each(Object.keys(currentGames), (value, index, array) => {
+            currentGamesInfos.push({
+                id: value,
+                name: currentGames[value].name,
+                players: (() => {
+                    let retour = []
+                    _.each(currentGames[value].physicalElements, (value, index, array) => {
+                        console.log(value.constructor.name)
+                        if (value.constructor.name === "Player") {
+                            retour.push({
+                                name: value.name
+                            })
+                        }
+                    })
+
+                    return retour
+                })()
+            })
+        })
+        return currentGamesInfos
+    }
 }
 
 module.exports = Game;
