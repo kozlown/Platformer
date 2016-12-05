@@ -104,9 +104,37 @@ module.exports = ( ()=>{
         })
 
         socket.on( `joinGame` , ( gameId )=>{
+            /**
+             * Check if the player is already in a game
+             */
+            let isPlayerAlreadyInAGame = false
+            _.each( currentGames , ( game , index , array )=>{
 
+                _.each( game.getPhysicalElementsOfType("Player") , ( value , index , array )=>{
+
+                    if (value.id === socket.player.id){
+                        isPlayerAlreadyInAGame = game.id
+                    }
+
+                })
+
+            })
+
+            /**
+             * if he's in a game then make him exit this game
+             */
+            if (isPlayerAlreadyInAGame){
+                currentGames[ isPlayerAlreadyInAGame ].deletePhysicalElement(socket.player)
+            }
+
+            /**
+             * make him join the new game
+             */
             currentGames[ gameId ].addPhysicalElement( socket.player )
 
+            /**
+             * Send new current games infos to the players
+             */
             let currentGamesInfos = Game.getCurrentGamesInfos()
 
             socket.emit('currentGames', currentGamesInfos)

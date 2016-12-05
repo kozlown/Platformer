@@ -149,6 +149,7 @@ class Game {
      * @param {PhysicalElement} element
      */
     addPhysicalElement(element) {
+
         // add the PhysicalElement to physicalElements array
         this.physicalElements.push(element);
 
@@ -164,11 +165,12 @@ class Game {
      */
     deletePhysicalElement(element) {
 
-        // remove the player from the players array
-        // TODO WRONG
-        delete this.physicalElements[element.id]
+        // remove the element from the element's array
+        this.physicalElements = _.reject(this.physicalElements, (value)=>{
+            return value.id === element.id
+        })
 
-        // remove the player physically from the world of the game
+        // remove the element physically from the world of the game
         World.remove(this.engine.world, element.body, true);
     }
 
