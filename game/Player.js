@@ -59,9 +59,13 @@ class Player extends PhysicalElement{
      */
     jump(){
 
+        // first set the y-velocity to 0
+        let velocity = Matter.Vector.create( this.body.velocity.x, 0 )
+        Body.setVelocity(this.body, velocity)
+
+        // then apply force
         let force = Matter.Vector.create(0, -0.1)
         Body.applyForce(this.body, this.body.position, force)
-
     }
 
     /**
