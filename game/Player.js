@@ -25,6 +25,7 @@ class Player extends PhysicalElement {
         super(x,y,width,height)
         this.jumpsToUse = 2
         this.jumpsUsed = 0
+        this.willWallJump = false
         this.name = name
         this.socket = socket
         this.body = new Bodies.rectangle(x, y, width, height, {
@@ -78,7 +79,18 @@ class Player extends PhysicalElement {
         Body.setVelocity(this.body, velocity)
 
         // then apply force
-        let force = Matter.Vector.create(0, -0.3)
+        let x;
+        switch (this.willWallJump){
+            case "right":
+                x = 0.15
+                break
+            case "left":
+                x = -0.15
+                break
+            case false:
+                x = 0
+        }
+        let force = Matter.Vector.create(x, -0.32)
         Body.applyForce(this.body, this.body.position, force)
     }
 
@@ -136,8 +148,9 @@ class Player extends PhysicalElement {
                 // if ( v.x=0 && v.before.x!=0 )
                 // if coming from the side
                 if ( velocity.x < 0.00001 && velocity.x > -0.00001 && ( this.velocityBefore.x < -0.00001 || this.velocityBefore.x > 0.00001 ) ){
-                    this.velocityBefore.x = 0
                     this.jumpsUsed = 1
+                    this.willWallJump = this.velocityBefore.x > 0 ? "left" : "right"
+                    this.velocityBefore.x = 0
                 }
 
                 // ( v.before.y>0 && v.y=0 )
@@ -171,7 +184,8 @@ class Player extends PhysicalElement {
     handleCollisionEndWith( physicalElement ){
 
         switch (physicalElement.constructor.name){
-
+            case "GroundJumpable":
+                this.willWallJump = false
             default:
                 // do nothing
                 break
