@@ -109,16 +109,12 @@ class Player extends PhysicalElement{
      * @param {PhysicalElement} physicalElement
      */
     handleCollisionStartWith( physicalElement ){
-
+        this.velocityBefore = {
+            x: this.body.velocity.x,
+            y: this.body.velocity.y
+        }
         switch (physicalElement.constructor.name){
 
-            case "GroundJumpable":
-                // if he's going down
-                if (this.body.velocity.y > 0){
-                    // reset the number of jumps used
-                    this.jumpsUsed = 0
-                }
-                break
             default:
                 // do nothing
                 break
@@ -133,12 +129,28 @@ class Player extends PhysicalElement{
      * @param {PhysicalElement} physicalElement
      */
     handleCollisionActiveWith( physicalElement ){
-
+        let velocity = this.body.velocity
         switch (physicalElement.constructor.name){
 
+            case "GroundJumpable":
+                // if ( v.x=0 && v.before.x!=0 )
+                // if coming from the side
+                if ( velocity.x < 0.00001 && velocity.x > -0.00001 && ( this.velocityBefore.x < -0.00001 || this.velocityBefore.x > 0.00001 ) ){
+                    this.velocityBefore.x = 0
+                    this.jumpsUsed = 1
+                }
+
+                // ( v.before.y>0 && v.y=0 )
+                // if coming from the top
+                else if ( this.velocityBefore.y > 0 && velocity.y < 0.00001 && velocity.y > -0.00001 ){
+                    // reset the number of jumps used
+                    this.jumpsUsed = 0
+                }
+                break
             case "GroundNotJumpable":
-                // if he's stationary
-                if (this.body.velocity.y == 0){
+                // ( v.before.y>0 && v.y=0 )
+                // if coming from the top
+                if ( this.velocityBefore.y > 0 && velocity.y < 0.00001 && velocity.y > -0.00001 ){
                     // reset the number of jumps used
                     this.jumpsUsed = 0
                 }

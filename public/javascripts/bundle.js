@@ -22387,8 +22387,8 @@ game = null
 {
     socket.emit("login", {
         name: "Nigel"+Math.random(),
-        x: 100,
-        y: -300,
+        x: 0,
+        y: 0,
         width: 50,
         height: 50
     }) // try to login

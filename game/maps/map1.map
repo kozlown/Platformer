@@ -3,19 +3,46 @@
         {
             "type": "GroundJumpable",
             "position": {
-                "x": -1000,
-                "y": -100
+                "x": -2500,
+                "y": -2500
             },
-            "width": 600,
-            "height": 25
+            "width": 1000,
+            "height": 5000
+        },
+        {
+            "type": "GroundJumpable",
+            "position": {
+                "x": -1500,
+                "y": -2500
+            },
+            "width": 3000,
+            "height": 1000
+        },
+        {
+            "type": "GroundNotJumpable",
+            "position": {
+                "x": 1500,
+                "y": -2500
+            },
+            "width": 1000,
+            "height": 5000
+        },
+        {
+            "type": "GroundJumpable",
+            "position": {
+                "x": -1500,
+                "y": 1500
+            },
+            "width": 3000,
+            "height": 1000
         },
         {
             "type": "GroundNotJumpable",
             "position": {
                 "x": 0,
-                "y": -100
+                "y": 0
             },
-            "width": 300,
+            "width": 500,
             "height": 200
         }
     ]
