@@ -22215,7 +22215,18 @@ class Game {
         this.update(startingGameInfos)
 
     }
-
+    
+    /**
+     * @method destroy
+     * @description completly delete the game
+     */
+    destroy(){
+    
+        this.renderer.destroy(true)
+    
+    }
+    
+    
     /**
      * @method update
      * @description Update the game with (new) informations
@@ -22440,7 +22451,9 @@ game = null
     socket.on('newGame', (data) => { // when receiving informations the new game creation
 
         console.log("new game : ", data )
-        $("#renderer").empty()
+        if (game){
+            game.destroy()
+        }
         game = new Game( $( window ).width() , $( window ).height() , "#renderer" , data )
         socket.on('gameUpdate', game.update.bind(game))
 

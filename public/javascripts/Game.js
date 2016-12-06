@@ -34,7 +34,18 @@ class Game {
         this.update(startingGameInfos)
 
     }
-
+    
+    /**
+     * @method destroy
+     * @description completely delete the game
+     */
+    destroy(){
+    
+        this.renderer.destroy(true)
+    
+    }
+    
+    
     /**
      * @method update
      * @description Update the game with (new) informations

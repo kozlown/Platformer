@@ -9,7 +9,7 @@ var PhysicalElement = require('./PhysicalElement')
  * @extends PhysicalElement
  * @description A player of the game
  */
-class Player extends PhysicalElement{
+class Player extends PhysicalElement {
 
     /**
      * @constructor

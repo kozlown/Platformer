@@ -2,6 +2,7 @@ var Game = require( '../game/Game' );
 var PhysicalElement = require('../game/PhysicalElement')
 var Player = require( '../game/Player' );
 var Ground = require( '../game/Ground' );
+var Respawn = require( '../game/Respawn' );
 
 module.exports = ( ()=>{
 
@@ -125,6 +126,13 @@ module.exports = ( ()=>{
             if (isPlayerAlreadyInAGame){
                 currentGames[ isPlayerAlreadyInAGame ].deletePhysicalElement(socket.player)
             }
+
+            /**
+             * set his position to a random respawn point of the game
+             */
+            let positionableElements = currentGames[ gameId ].getPositionableElementsOfType("Respawn")
+            let respawn = positionableElements[_.random(0, positionableElements.length-1)]
+            socket.player.setPosition(respawn.position.x, respawn.position.y)
 
             /**
              * make him join the new game

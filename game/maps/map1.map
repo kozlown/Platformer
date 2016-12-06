@@ -44,6 +44,27 @@
             },
             "width": 500,
             "height": 200
+        },
+        {
+            "type": "Respawn",
+            "position": {
+                "x": 0,
+                "y": -100
+            }
+        },
+        {
+            "type": "Respawn",
+            "position": {
+                "x": 300,
+                "y": -100
+            }
+        },
+        {
+            "type": "Respawn",
+            "position": {
+                "x": 150,
+                "y": -300
+            }
         }
     ]
 }

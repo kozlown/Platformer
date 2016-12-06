@@ -1,8 +1,9 @@
 /**
  * Created by Nigel on 26/11/2016.
  */
-let GroundJumpable = require("./GroundJumpable.js")
-let GroundNotJumpable = require("./GroundNotJumpable.js")
+let GroundJumpable = require("./GroundJumpable")
+let GroundNotJumpable = require("./GroundNotJumpable")
+let Respawn = require( './Respawn' );
 
 /**
  * @class Game
@@ -20,6 +21,7 @@ class Game {
 
         this.id = uniqid()
         this.name = name
+        this.positionableElements = []
         this.physicalElements = []
 
         let validName = true
@@ -114,7 +116,6 @@ class Game {
     step(){
 
         _.each( this.getPhysicalElementsOfType( "Player" ) ,(player)=>{
-
             player.move()
 
         })
@@ -249,6 +250,9 @@ class Game {
                     console.log(value.position.x , value.position.y , value.width , value.height)
                     this.addPhysicalElement( new GroundNotJumpable( value.position.x , value.position.y , value.width , value.height ) )
                     break
+                case "Respawn":
+                    this.addPositionableElement( new Respawn( value.position.x, value.position.y ))
+                    break
             }
 
         })
@@ -313,7 +317,30 @@ class Game {
 
     }
 
+    /**
+     * @method addPositionableElement
+     * @description add a positionableElement to the game positionable elements array
+     */
+    addPositionableElement( positionableElement ){
 
+        this.positionableElements.push( positionableElement )
+    }
+
+    /**
+     * @method getPositionableElementsOfType
+     * @description Return all PositionableElements of the specified type
+     * @param {String} type
+     * @returns {Array}
+     */
+    getPositionableElementsOfType(type){
+        let elements = []
+        _.each( this.positionableElements , ( element )=>{
+            if ( element.constructor.name === type )
+                elements.push( element )
+
+        } )
+        return elements
+    }
 }
 
 module.exports = Game;

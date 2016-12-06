@@ -2,12 +2,15 @@
  * Created by Nigel on 29/11/2016.
  */
 
+let PositionableElement = require("./PositionableElement")
+
 /**
  * @class PhysicalElement
  * @abstract
+ * @extends PositionableElement
  * @description A physical element of a game
  */
-class PhysicalElement {
+class PhysicalElement extends PositionableElement {
 
     /**
      * @constructor
@@ -18,12 +21,10 @@ class PhysicalElement {
      * @param {String} type
      */
     constructor(x,y,width,height){
-        if (this.constructor === PhysicalElement){
+        super(x,y)
+        if (this.constructor.name === "PhysicalElement"){
             throw new Error("Can't instantiate abstract class !")
-            return
         }
-        this.x = x
-        this.y = y
         this.width = width
         this.height = height
         this.state = {}
@@ -38,12 +39,11 @@ class PhysicalElement {
      */
     setPosition(x, y) {
 
-        this.x = x
-        this.y = y
+        super.setPosition(x, y)
 
-        this.body.setPosition(this.body, {
-            x: this.x,
-            y: this.y
+        Body.setPosition(this.body, {
+            x: this.position.x,
+            y: this.position.y
         })
 
     }
