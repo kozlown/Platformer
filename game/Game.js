@@ -101,10 +101,10 @@ class Game {
      * @description Start the game
      */
     start() {
-
         // launch the main loop and save it, so it will be stopped when the game stop
         this.mainLoop = setInterval(this.step.bind(this), 1000 / 60);
-
+        this.delta = 1000 / 60
+        this.lastStepTimestamp = new Date().getTime()
         console.log(`Game started !`)
 
     }
@@ -114,20 +114,21 @@ class Game {
      * @description Go to the next state of the game
      */
     step(){
-
         _.each( this.getPhysicalElementsOfType( "Player" ) ,(player)=>{
             player.move()
 
         })
+        this.lastDelta = this.delta
+        this.delta = new Date().getTime() - this.lastStepTimestamp
 
-        Engine.update(this.engine, 1000 / 60); // Update the Engine
+        Engine.update(this.engine, this.delta , this.delta/this.lastDelta); // Update the Engine
 
         // Send informations to the players
         _.each( this.getPhysicalElementsOfType( "Player" ) ,(player)=>{
             player.socket.emit("gameUpdate", this.getGameUpdateInfos(player))
         })
 
-
+        this.lastStepTimestamp = new Date().getTime()
     }
 
     /**
