@@ -22203,6 +22203,13 @@ class Game {
             resolution: 1
         } );
 
+        // set the num of frames
+        this.frames = 0
+        this.fpsDisplayer = setInterval(()=>{
+            console.log(this.frames)
+            this.frames = 0
+        }, 1000)
+
         // Add the canvas to the HTML document
         $( renderContainerSelector ).append( this.renderer.view );
 
@@ -22221,7 +22228,7 @@ class Game {
      * @description completely delete the game
      */
     destroy(){
-    
+        clearInterval(this.fpsDisplayer)
         this.renderer.destroy(true)
     }
     
@@ -22232,7 +22239,7 @@ class Game {
      * @param {Object} gameUpdateInfos
      */
     update( gameUpdateInfos ){
-
+        this.frames ++
         this.setCameraPosition( gameUpdateInfos.playerPosition )
 
         // update all locals pseudo PhysicalElements (and their corresponding Sprites)
