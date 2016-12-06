@@ -1,7 +1,7 @@
 {
     "map": [
         {
-            "type": "Ground",
+            "type": "GroundJumpable",
             "position": {
                 "x": -1000,
                 "y": -100
@@ -10,32 +10,13 @@
             "height": 25
         },
         {
-            "type": "Ground",
-            "position": {
-                "x": -500,
-                "y": 0
-            },
-            "width": 300,
-            "height": 60
-        },
-        {
-            "type": "Ground",
-            "position": {
-                "x": -300,
-                "y": -100
-            },
-            "width": 200,
-            "height": 5
-        },
-        {
-            "type": "Ground",
+            "type": "GroundNotJumpable",
             "position": {
                 "x": 0,
-                "y": 200
+                "y": -100
             },
-            "width": 400,
+            "width": 300,
             "height": 200
         }
-
     ]
 }

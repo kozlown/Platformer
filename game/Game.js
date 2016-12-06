@@ -1,7 +1,8 @@
 /**
  * Created by Nigel on 26/11/2016.
  */
-let Ground = require("./Ground.js")
+let GroundJumpable = require("./GroundJumpable.js")
+let GroundNotJumpable = require("./GroundNotJumpable.js")
 
 /**
  * @class Game
@@ -35,33 +36,22 @@ class Game {
 
         // create the engine of the game
         this.engine = Engine.create()
-        // TODO collision handler for player
+
+        // Handle all collisions
         Events.on(this.engine, "collisionStart", (e)=>{
 
             _.each( e.pairs , ( value , index , array )=>{
 
-                let isPlayerA = this.getPhysicalElementFromBody(value.bodyA)
-                let isPlayerB = this.getPhysicalElementFromBody(value.bodyB)
+                let physicalElement1 = this.getPhysicalElementFromBody(value.bodyA)
+                let physicalElement2 = this.getPhysicalElementFromBody(value.bodyB)
 
-                //console.log(isPlayerA, isPlayerB)
-                if (isPlayerA && isPlayerA.constructor.name === "Player"){
-
-                    // if he's goin down
-                    if (isPlayerA.body.velocity.y > 0){
-                        isPlayerA.jumpsUsed = 0
-                    }
-                }
-                else if (isPlayerB && isPlayerB.constructor.name === "Player"){
-
-                    // if he's goin down
-                    if (isPlayerB.body.velocity.y > 0){
-                        isPlayerB.jumpsUsed = 0
-                    }
+                if (physicalElement1 && physicalElement2){
+                    physicalElement1.handleCollisionWith(physicalElement2)
+                    physicalElement2.handleCollisionWith(physicalElement1)
                 }
 
             })
         })
-
 
         // greater gravity
         this.engine.world.gravity.y = 3
@@ -184,7 +174,7 @@ class Game {
         // add the PhysicalElement to physicalElements array
         this.physicalElements.push(element);
 
-        // add the player physically to the world of the game
+        // add the PhysicalElement physically to the world of the game
         World.add(this.engine.world, element.body);
 
     }
@@ -220,9 +210,13 @@ class Game {
         _.each( map , ( value , index , array )=>{
 
             switch ( value.type ){
-                case "Ground":
+                case "GroundJumpable":
                     console.log(value.position.x , value.position.y , value.width , value.height)
-                    this.addPhysicalElement( new Ground( value.position.x , value.position.y , value.width , value.height ) )
+                    this.addPhysicalElement( new GroundJumpable( value.position.x , value.position.y , value.width , value.height ) )
+                    break
+                case "GroundNotJumpable":
+                    console.log(value.position.x , value.position.y , value.width , value.height)
+                    this.addPhysicalElement( new GroundNotJumpable( value.position.x , value.position.y , value.width , value.height ) )
                     break
             }
 
@@ -274,6 +268,21 @@ class Game {
         })
         return currentGamesInfos
     }
+
+    /**
+     * @method handleCollision
+     * @description handler that will be called for every collision pairs
+     * @param {PhysicalElement} physicalElement1
+     * @param {PhysicalElement} physicalElement2
+     */
+    handleCollision( physicalElement1, physicalElement2 ){
+
+        physicalElement1.handleCollisionWith( physicalElement2 )
+        physicalElement2.handleCollisionWith( physicalElement1 )
+
+    }
+
+
 }
 
 module.exports = Game;

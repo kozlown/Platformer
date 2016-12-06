@@ -15,7 +15,7 @@ game = null
     socket.emit("login", {
         name: "Nigel"+Math.random(),
         x: 100,
-        y: 100,
+        y: -300,
         width: 50,
         height: 50
     }) // try to login

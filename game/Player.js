@@ -102,6 +102,32 @@ class Player extends PhysicalElement{
 
     }
 
+    /**
+     * @method handleCollisionWith
+     * @override
+     * @description handle collision with another PhysicalElement
+     * @param {PhysicalElement} physicalElement
+     */
+    handleCollisionWith( physicalElement ){
+
+        switch (physicalElement.constructor.name){
+
+            case "GroundJumpable":
+                // if he's going down
+                if (this.body.velocity.y > 0){
+                    // reset the number of jumps used
+                    this.jumpsUsed = 0
+                }
+                break
+            default:
+                // do nothing
+                break
+        }
+
+    }
+
+
+
 }
 
 module.exports = Player
