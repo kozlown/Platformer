@@ -42,7 +42,6 @@ class Game {
     destroy(){
     
         this.renderer.destroy(true)
-    
     }
     
     
