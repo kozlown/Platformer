@@ -37,7 +37,10 @@ class Game {
         // create the engine of the game
         this.engine = Engine.create()
 
-        // Handle all collisions
+        /**
+         * handle all collisions
+         */
+        // Handle all start collisions
         Events.on(this.engine, "collisionStart", (e)=>{
 
             _.each( e.pairs , ( value , index , array )=>{
@@ -46,10 +49,38 @@ class Game {
                 let physicalElement2 = this.getPhysicalElementFromBody(value.bodyB)
 
                 if (physicalElement1 && physicalElement2){
-                    physicalElement1.handleCollisionWith(physicalElement2)
-                    physicalElement2.handleCollisionWith(physicalElement1)
+                    physicalElement1.handleCollisionStartWith(physicalElement2)
+                    physicalElement2.handleCollisionStartWith(physicalElement1)
                 }
+            })
+        })
+        // Handle all active collisions
+        Events.on(this.engine, "collisionActive", (e)=>{
 
+            _.each( e.pairs , ( value , index , array )=>{
+
+                let physicalElement1 = this.getPhysicalElementFromBody(value.bodyA)
+                let physicalElement2 = this.getPhysicalElementFromBody(value.bodyB)
+
+                if (physicalElement1 && physicalElement2){
+                    physicalElement1.handleCollisionActiveWith(physicalElement2)
+                    physicalElement2.handleCollisionActiveWith(physicalElement1)
+                }
+            })
+        })
+        // Handle all ended collisions
+        Events.on(this.engine, "collisionEnd", (e)=>{
+
+            _.each( e.pairs , ( value , index , array )=>{
+
+                let physicalElement1 = this.getPhysicalElementFromBody(value.bodyA)
+                let physicalElement2 = this.getPhysicalElementFromBody(value.bodyB)
+
+                if (physicalElement1 && physicalElement2){
+
+                    physicalElement1.handleCollisionEndWith(physicalElement2)
+                    physicalElement2.handleCollisionEndWith(physicalElement1)
+                }
             })
         })
 

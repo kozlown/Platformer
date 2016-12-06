@@ -103,12 +103,12 @@ class Player extends PhysicalElement{
     }
 
     /**
-     * @method handleCollisionWith
+     * @method handleCollisionStartWith
      * @override
-     * @description handle collision with another PhysicalElement
+     * @description handle collision start with another PhysicalElement
      * @param {PhysicalElement} physicalElement
      */
-    handleCollisionWith( physicalElement ){
+    handleCollisionStartWith( physicalElement ){
 
         switch (physicalElement.constructor.name){
 
@@ -126,7 +126,46 @@ class Player extends PhysicalElement{
 
     }
 
+    /**
+     * @method handleCollisionActiveWith
+     * @override
+     * @description handle collision active (after engine update) with another PhysicalElement
+     * @param {PhysicalElement} physicalElement
+     */
+    handleCollisionActiveWith( physicalElement ){
 
+        switch (physicalElement.constructor.name){
+
+            case "GroundNotJumpable":
+                // if he's stationary
+                if (this.body.velocity.y == 0){
+                    // reset the number of jumps used
+                    this.jumpsUsed = 0
+                }
+                break
+            default:
+                // do nothing
+                break
+        }
+
+    }
+
+    /**
+     * @method handleCollisionEndWith
+     * @override
+     * @description handle collision end (collision that have ended in the current tick) with another PhysicalElement
+     * @param {PhysicalElement} physicalElement
+     */
+    handleCollisionEndWith( physicalElement ){
+
+        switch (physicalElement.constructor.name){
+
+            default:
+                // do nothing
+                break
+        }
+
+    }
 
 }
 

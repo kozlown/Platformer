@@ -49,12 +49,34 @@ class PhysicalElement {
     }
 
     /**
-     * @method handleCollisionWith
+     * @method handleCollisionStartWith
      * @abstract
-     * @description handle collision with another PhysicalElement
+     * @description handle collision start with another PhysicalElement
      * @param {PhysicalElement} physicalElement
      */
-    handleCollisionWith( physicalElement ){
+    handleCollisionStartWith( physicalElement ){
+
+        throw new Error("This method is abstract, you must override it before using it !")
+    }
+
+    /**
+     * @method handleCollisionActiveWith
+     * @abstract
+     * @description handle collision active (after engine update) with another PhysicalElement
+     * @param {PhysicalElement} physicalElement
+     */
+    handleCollisionActiveWith( physicalElement ){
+
+        throw new Error("This method is abstract, you must override it before using it !")
+    }
+
+    /**
+     * @method handleCollisionEndWith
+     * @abstract
+     * @description handle collision end (collision that have ended in the current tick) with another PhysicalElement
+     * @param {PhysicalElement} physicalElement
+     */
+    handleCollisionEndWith( physicalElement ){
 
         throw new Error("This method is abstract, you must override it before using it !")
     }
