@@ -102,8 +102,8 @@ class Game {
      */
     start() {
         // launch the main loop and save it, so it will be stopped when the game stop
-        this.mainLoop = setInterval(this.step.bind(this), 1000 / 60);
-        this.delta = 1000 / 60
+        this.mainLoop = setInterval(this.step.bind(this), 1000/60);
+        this.delta = 1000/60
         this.lastStepTimestamp = new Date().getTime()
         console.log(`Game started !`)
 
@@ -119,9 +119,12 @@ class Game {
 
         })
         this.lastDelta = this.delta
-        this.delta = new Date().getTime() - this.lastStepTimestamp
+        let delta = new Date().getTime() - this.lastStepTimestamp
 
-        Engine.update(this.engine, this.delta , this.delta/this.lastDelta); // Update the Engine
+        // only usefull because of the mistake in Matter.Body.update first lign, should be corrected
+        this.delta = Math.sqrt(Math.pow(1000/60,2) * ( delta / (1000/60) ))
+
+        Engine.update(this.engine, this.delta , this.delta / this.lastDelta); // Update the Engine
 
         // Send informations to the players
         _.each( this.getPhysicalElementsOfType( "Player" ) ,(player)=>{

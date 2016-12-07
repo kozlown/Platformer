@@ -99,7 +99,6 @@ class Player extends PhysicalElement {
      * @description calls movement functions depending of the player's state ( movingRight | movingLeft | etc. )
      */
     move(){
-
         if (this.state.isMovingLeft){
 
             this.moveLeft()
