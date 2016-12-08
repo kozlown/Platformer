@@ -8,34 +8,43 @@ module.exports = ( ()=>{
 
     return (socket) => {
 
-        socket.on('login', (playerInfos) => {
+        socket.on(`login`, ( playerInfos ) => {
 
             // create a new player linked with the socket
             socket.player =
-                new Player(playerInfos.name, playerInfos.x, playerInfos.y, playerInfos.width, playerInfos.height, socket)
+                new Player (
+                    playerInfos.name,
+                    playerInfos.x,
+                    playerInfos.y,
+                    playerInfos.width,
+                    playerInfos.height,
+                    socket
+                )
 
             console.log(`${socket.player.name} is connected`)
+
             // tell the player that the login worked
             socket.emit(`connected`)
 
             // send current games to the player
-            socket.emit(`currentGames`, Game.getCurrentGamesInfos())
+            socket.emit(`currentGames`, gamesManager.getGamesInfos())
 
         });
 
         socket.on(`logout`, () => {
 
-            // if the player was playing, he leaves the game
-            if (socket.player.game != null)
-                currentGames[socket.player.game].removePlayer(socket.player)
+            // if the player was playing and the game exists
+            if (socket.player.game && gamesManager.getGame(socket.player.game.id)){
+                // he is disconnected from the game
+                gamesManager.getGame(socket.player.game.id).removePlayer(socket.player)
+            }
 
+            // tell the player he's disconnected
             socket.emit(`disconnected`);
 
         });
 
-        socket.on(`keydown`, (keyCode) => {
-
-            //console.log(`key down : ${ keyCode }`)
+        socket.on(`keydown`, ( keyCode ) => {
 
             switch (keyCode) {
 
@@ -61,12 +70,9 @@ module.exports = ( ()=>{
                     break
             }
 
-
         })
 
-        socket.on(`keyup`, (keyCode) => {
-
-            //console.log( `key up : ${keyCode}` )
+        socket.on(`keyup`, ( keyCode ) => {
 
             switch (keyCode) {
 
@@ -88,73 +94,78 @@ module.exports = ( ()=>{
 
         })
 
-        socket.on(`newGame`, (gameInfos) => {
+        socket.on(`newGame`, ( gameInfos ) => {
 
             let game = new Game(gameInfos.name, gameInfos.map)
-            if (game) { // if the creation worked
+            if (gamesManager.addGame(game)) { // if the game was successfully added
 
                 // send current games to everybody
-                let currentGamesInfos = Game.getCurrentGamesInfos()
+                let gamesInfos = gamesManager.getGamesInfos()
 
-                socket.emit('currentGames', currentGamesInfos)
-                socket.broadcast.emit('currentGames', currentGamesInfos)
-
-                return
+                socket.emit('currentGames', gamesInfos)
+                socket.broadcast.emit('currentGames', gamesInfos)
             }
+
         })
 
-        socket.on( `joinGame` , ( gameId )=>{
+        socket.on(`joinGame`, ( gameId )=>{
+            let gameToJoin = gamesManager.getGame(gameId)
+
+            // if the game doesn't exist, exit
+            if (!gameToJoin) return
+
             /**
              * Check if the player is already in a game
              */
             let isPlayerAlreadyInAGame = false
-            _.each( currentGames , ( game , index , array )=>{
-
-                _.each( game.getPhysicalElementsOfType("Player") , ( value , index , array )=>{
-
-                    if (value.id === socket.player.id){
+            _.each( gamesManager.games , ( game , index , array )=>{
+                _.each( game.getPhysicalElementsOfType("Player") , ( player , index , array )=>{
+                    if (player.id === socket.player.id){
                         isPlayerAlreadyInAGame = game.id
                     }
-
                 })
-
             })
 
             /**
              * if he's in a game then make him exit this game
              */
             if (isPlayerAlreadyInAGame){
-                currentGames[ isPlayerAlreadyInAGame ].deletePhysicalElement(socket.player)
+                gamesManager.getGame(isPlayerAlreadyInAGame).deletePhysicalElement(socket.player)
             }
 
             /**
              * set his position to a random respawn point of the game
              */
-            let positionableElements = currentGames[ gameId ].getPositionableElementsOfType("Respawn")
-            let respawn = positionableElements[_.random(0, positionableElements.length-1)]
+            let respawns = gameToJoin.getPositionableElementsOfType("Respawn")
+            let respawn = respawns[_.random(0, respawns.length-1)]
             socket.player.setPosition(respawn.position.x, respawn.position.y)
 
             /**
-             * make him join the new game
+             * make him join the game
              */
-            currentGames[ gameId ].addPhysicalElement( socket.player )
+            gameToJoin.addPhysicalElement( socket.player )
 
             // he get the infos so he can display the map
-            socket.emit("newGame",  currentGames[ gameId ].getGameUpdateInfos(socket.player))
+            socket.emit("newGame",  gameToJoin.getGameUpdateInfos(socket.player))
 
             /**
              * Send new current games infos to the players
              */
-            let currentGamesInfos = Game.getCurrentGamesInfos()
+            let gamesInfos = gamesManager.getGamesInfos()
 
-            socket.emit('currentGames', currentGamesInfos)
-            socket.broadcast.emit('currentGames', currentGamesInfos)
+            socket.emit('currentGames', gamesInfos)
+            socket.broadcast.emit('currentGames', gamesInfos)
 
         } )
 
-        socket.on( `startGame` , ( gameId )=>{
+        socket.on(`startGame`, ( gameId )=>{
+            let gameToStart = gamesManager.getGame(gameId)
 
-            currentGames[ gameId ].start()
+            // if the game doesn't exist, exit
+            if (!gameToStart) return
+
+            // else, start the game
+            gameToStart.start()
 
         } )
     }

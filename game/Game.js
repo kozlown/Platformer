@@ -18,23 +18,13 @@ class Game {
      * @param {String} map
      */
     constructor(name, map) {
+        // set the state of the game to "loading"
+        this.state = "loading"
 
         this.id = uniqid()
         this.name = name
         this.positionableElements = []
         this.physicalElements = []
-
-        let validName = true
-
-        // Check if a game with this name doesn't already exists
-        _.each( currentGames , ( value , index , array )=>{
-            if ( value.name === name )
-            {
-                validName = false
-            }
-        })
-
-        if (!validName) return false
 
         // create the engine of the game
         this.engine = Engine.create()
@@ -92,8 +82,8 @@ class Game {
         // load the map
         this.loadMap(map)
 
-        // add the game to all games
-        currentGames[this.id] = this
+        // set the state of the game to "ready"
+        this.state = "ready"
     }
 
     /**
@@ -101,11 +91,18 @@ class Game {
      * @description Start the game
      */
     start() {
+
+        // if the game is not ready or paused, exit
+        if (!(this.state === "ready" || this.state === "paused")) return
+
+        // else
         // launch the main loop and save it, so it will be stopped when the game stop
         this.mainLoop = setInterval(this.step.bind(this), 1000/60);
         this.delta = 1000/60
         this.lastStepTimestamp = new Date().getTime()
-        console.log(`Game started !`)
+
+        // set the state of the game to "playing"
+        this.state = "playing"
 
     }
 
@@ -114,23 +111,36 @@ class Game {
      * @description Go to the next state of the game
      */
     step(){
+
+        // if the game is not playing, exit
+        if (this.state !== "playing") {
+            return
+        }
+
+        // else
+        // move every player
         _.each( this.getPhysicalElementsOfType( "Player" ) ,(player)=>{
             player.move()
-
         })
+
+        // set the last time delta
         this.lastDelta = this.delta
+
+        // set the new time delta
         let delta = new Date().getTime() - this.lastStepTimestamp
 
-        // only usefull because of the mistake in Matter.Body.update first lign, should be corrected
+        // make some corrections
         this.delta = Math.sqrt(Math.pow(1000/60,2) * ( delta / (1000/60) ))
 
-        Engine.update(this.engine, this.delta , this.delta / this.lastDelta); // Update the Engine
+        // Update the Engine
+        Engine.update(this.engine, this.delta , this.delta / this.lastDelta);
 
         // Send informations to the players
         _.each( this.getPhysicalElementsOfType( "Player" ) ,(player)=>{
             player.socket.emit("gameUpdate", this.getGameUpdateInfos(player))
         })
 
+        // set lastStepTimestamp
         this.lastStepTimestamp = new Date().getTime()
     }
 
@@ -195,9 +205,6 @@ class Game {
         // stop the main loop
         clearInterval(this.mainLoop)
 
-        // remove the game
-        delete currentGames[this.id]
-
     }
 
     /**
@@ -247,11 +254,9 @@ class Game {
 
             switch ( value.type ){
                 case "GroundJumpable":
-                    console.log(value.position.x , value.position.y , value.width , value.height)
                     this.addPhysicalElement( new GroundJumpable( value.position.x , value.position.y , value.width , value.height ) )
                     break
                 case "GroundNotJumpable":
-                    console.log(value.position.x , value.position.y , value.width , value.height)
                     this.addPhysicalElement( new GroundNotJumpable( value.position.x , value.position.y , value.width , value.height ) )
                     break
                 case "Respawn":
@@ -282,30 +287,6 @@ class Game {
         })
 
         return returnPhysicalElement
-    }
-
-    static getCurrentGamesInfos(){
-        let currentGamesInfos = []
-        _.each(Object.keys(currentGames), (value, index, array) => {
-            currentGamesInfos.push({
-                id: value,
-                name: currentGames[value].name,
-                players: (() => {
-                    let retour = []
-                    _.each(currentGames[value].physicalElements, (value, index, array) => {
-                        console.log(value.constructor.name)
-                        if (value.constructor.name === "Player") {
-                            retour.push({
-                                name: value.name
-                            })
-                        }
-                    })
-
-                    return retour
-                })()
-            })
-        })
-        return currentGamesInfos
     }
 
     /**
@@ -345,6 +326,7 @@ class Game {
         } )
         return elements
     }
+
 }
 
 module.exports = Game;

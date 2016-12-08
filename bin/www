@@ -12,7 +12,7 @@ var argv = require('minimist')(process.argv.slice(2));
 // globals
 error = debug('error');
 debug = debug('platformer:server');
-_ = require('underscore');
+_ = require('lodash');
 uniqid = require('uniqid');
 fs = require('fs');
 
@@ -31,9 +31,10 @@ Body = Matter.Body
 Events = Matter.Events
 
 /**
- * Global variables
+ * Games Manager
  */
-currentGames = {};
+GamesManager = require("../game/GamesManager")
+gamesManager = new GamesManager();
 
 /**
  * Get port from environment and store in Express.
