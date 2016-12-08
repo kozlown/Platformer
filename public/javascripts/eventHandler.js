@@ -4,7 +4,8 @@ $ = jQuery
 require('bootstrap')
 _ = require("underscore")
 io = require('socket.io-client')
-socket = io('http://localhost:3000'); // set the socket
+configs = require("../../configs/front.conf")
+socket = io(`http://${configs.domain}:${configs.port}`); // set the socket
 
 
 game = null

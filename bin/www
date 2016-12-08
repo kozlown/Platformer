@@ -1,6 +1,11 @@
 #!/usr/bin/env node
 
 /**
+ * Configs
+ */
+configs = require("../configs/server.conf")
+
+/**
  * Module dependencies.
  */
 
@@ -39,7 +44,7 @@ gamesManager = new GamesManager();
 /**
  * Get port from environment and store in Express.
  */
-var port = normalizePort(argv.port || '3000');
+var port = normalizePort(argv.port || configs.port);
 app.set('port', port);
 
 /**
