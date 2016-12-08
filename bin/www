@@ -3,7 +3,8 @@
 /**
  * Configs
  */
-configs = require("../configs/server.conf")
+configsServer = require("../configs/server.conf")
+configsFront = require("../configs/front.conf")
 
 /**
  * Module dependencies.
@@ -44,7 +45,7 @@ gamesManager = new GamesManager();
 /**
  * Get port from environment and store in Express.
  */
-var port = normalizePort(argv.port || configs.port);
+var port = normalizePort(argv.port || configsServer.port);
 app.set('port', port);
 
 /**
