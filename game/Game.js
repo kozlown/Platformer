@@ -121,8 +121,6 @@ class Game {
      * @description Go to the next state of the game
      */
     step(){
-        this.stepCount ++
-
         // if the game is not playing, exit
         if (this.state !== "playing") {
             return
@@ -179,8 +177,7 @@ class Game {
 
         let gameUpdateInfos = {
             physicalElements: [],
-            cameraPosition: {},
-            stepCount: this.stepCount
+            cameraPosition: {}
         }
 
         gameUpdateInfos.playerPosition = {
