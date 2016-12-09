@@ -22243,6 +22243,9 @@ class Game {
      * @param {Object} gameUpdateInfos
      */
     update( gameUpdateInfos ){
+        if (gameUpdateInfos.stepCount!=this.stepCount+1)
+        console.log(gameUpdateInfos.stepCount)
+        this.stepCount = gameUpdateInfos.stepCount
         this.frames ++
         this.setCameraPosition( gameUpdateInfos.playerPosition )
 
