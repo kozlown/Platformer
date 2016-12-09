@@ -2,6 +2,9 @@
  * Created by Nigel on 08/12/2016.
  */
 
+let Player = require('./Player')
+
+
 /**
  * @class GamesManager
  * @description Manage multiple games
@@ -102,7 +105,7 @@ class GamesManager {
             gamesInfos.push({
                 id: value.id,
                 name: value.name,
-                players: _.map( value.getPhysicalElementsOfType("Player") , ( value , key )=>{
+                players: _.map( value.getElementsOfType(Player) , ( value , key )=>{
                     return {
                         name: value.name
                     }

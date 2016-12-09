@@ -3,7 +3,9 @@
  */
 let GroundJumpable = require("./GroundJumpable")
 let GroundNotJumpable = require("./GroundNotJumpable")
+let PhysicalElement = require("./PhysicalElement")
 let Respawn = require( './Respawn' );
+let Player = require('./Player')
 var reissue = require('reissue');
 
 /**
@@ -21,11 +23,9 @@ class Game {
     constructor(name, map) {
         // set the state of the game to "loading"
         this.state = "loading"
-        this.stepCount = 0 // TODO TEST
         this.id = uniqid()
         this.name = name
-        this.positionableElements = []
-        this.physicalElements = []
+        this.elements = []
 
         // create the engine of the game
         this.engine = Engine.create()
@@ -38,43 +38,45 @@ class Game {
 
             _.each( e.pairs , ( value , index , array )=>{
 
-                let physicalElement1 = this.getPhysicalElementFromBody(value.bodyA)
-                let physicalElement2 = this.getPhysicalElementFromBody(value.bodyB)
+                let element1 = this.getElementFromBody(value.bodyA)
+                let element2 = this.getElementFromBody(value.bodyB)
 
-                if (physicalElement1 && physicalElement2){
-                    physicalElement1.handleCollisionStartWith(physicalElement2)
-                    physicalElement2.handleCollisionStartWith(physicalElement1)
+                if (element1 && element2){
+                    element1.handleCollisionStartWith(element2)
+                    element2.handleCollisionStartWith(element1)
                 }
             })
+
         })
         // Handle all active collisions
         Events.on(this.engine, "collisionActive", (e)=>{
 
             _.each( e.pairs , ( value , index , array )=>{
 
-                let physicalElement1 = this.getPhysicalElementFromBody(value.bodyA)
-                let physicalElement2 = this.getPhysicalElementFromBody(value.bodyB)
+                let element1 = this.getElementFromBody(value.bodyA)
+                let element2 = this.getElementFromBody(value.bodyB)
 
-                if (physicalElement1 && physicalElement2){
-                    physicalElement1.handleCollisionActiveWith(physicalElement2)
-                    physicalElement2.handleCollisionActiveWith(physicalElement1)
+                if (element1 && element2){
+                    element1.handleCollisionActiveWith(element2)
+                    element2.handleCollisionActiveWith(element1)
                 }
             })
+
         })
         // Handle all ended collisions
         Events.on(this.engine, "collisionEnd", (e)=>{
 
             _.each( e.pairs , ( value , index , array )=>{
 
-                let physicalElement1 = this.getPhysicalElementFromBody(value.bodyA)
-                let physicalElement2 = this.getPhysicalElementFromBody(value.bodyB)
+                let element1 = this.getElementFromBody(value.bodyA)
+                let element2 = this.getElementFromBody(value.bodyB)
 
-                if (physicalElement1 && physicalElement2){
-
-                    physicalElement1.handleCollisionEndWith(physicalElement2)
-                    physicalElement2.handleCollisionEndWith(physicalElement1)
+                if (element1 && element2){
+                    element1.handleCollisionEndWith(element2)
+                    element2.handleCollisionEndWith(element1)
                 }
             })
+
         })
 
         // greater gravity
@@ -105,7 +107,7 @@ class Game {
             },
             interval: 1000/60,
             context: this
-        });
+        })
         this.mainLoop.start()
 
         this.delta = 1000/60
@@ -127,8 +129,11 @@ class Game {
         }
 
         // else
-        // move every player
-        _.each( this.getPhysicalElementsOfType( "Player" ) ,(player)=>{
+        // get every player and zombies
+        let players = this.getElementsOfType( Player )
+
+        // move them
+        _.each( players ,(player)=>{
             player.move()
         })
 
@@ -142,28 +147,12 @@ class Game {
         Engine.update(this.engine, this.delta , this.delta / this.lastDelta);
 
         // Send informations to the players
-        _.each( this.getPhysicalElementsOfType( "Player" ) ,(player)=>{
+        _.each( players ,(player)=>{
             player.socket.emit("gameUpdate", this.getGameUpdateInfos(player))
         })
 
         // set lastStepTimestamp
         this.lastStepTimestamp = new Date().getTime()
-    }
-
-    /**
-     * @method getPhysicalElementsOfType
-     * @description Return all PhysicalElements of the specified type
-     * @param {String} type
-     * @returns {Array}
-     */
-    getPhysicalElementsOfType(type){
-        let elements = []
-        _.each( this.physicalElements , ( element )=>{
-            if ( element.constructor.name === type )
-                elements.push( element )
-
-        } )
-        return elements
     }
 
     /***
@@ -186,14 +175,14 @@ class Game {
         }
 
         // add all PhysicalElements being in the Game
-        _.each( this.physicalElements , ( physicalElement )=>{
+        _.each( this.getElementsOfType( PhysicalElement ), ( element )=>{
 
             gameUpdateInfos.physicalElements.push({
-                id: physicalElement.id,
-                type: physicalElement.constructor.name,
-                position: physicalElement.body.position,
-                width: physicalElement.width,
-                height: physicalElement.height
+                id: element.id,
+                type: element.constructor.name,
+                position: element.body.position,
+                width: element.width,
+                height: element.height
             })
 
         })
@@ -209,39 +198,44 @@ class Game {
     end() {
 
         // stop the main loop
-        clearInterval(this.mainLoop)
+       this.mainLoop.stop()
 
     }
 
     /**
-     * @method addPhysicalElement
-     * @description Add a new PhysicalElement to the Game
-     * @param {PhysicalElement} element
+     * @method addElement
+     * @description Add a new element to the Game
+     * @param {Element} element
      */
-    addPhysicalElement(element) {
+    addElement(element) {
 
-        // add the PhysicalElement to physicalElements array
-        this.physicalElements.push(element);
+        // add the Element to elements array
+        this.elements.push(element);
 
-        // add the PhysicalElement physically to the world of the game
-        World.add(this.engine.world, element.body);
-
+        // if the element is a physicalElement
+        if (element instanceof PhysicalElement) {
+            // add it physically to the world
+            World.add(this.engine.world, element.body);
+        }
     }
 
     /**
-     * @method deletePhysicalElement
-     * @description Delete a PhysicalElement from the Game
-     * @param PhysicalElement element
+     * @method deleteElement
+     * @description Delete an Element from the Game
+     * @param {Element} element
      */
-    deletePhysicalElement(element) {
+    deleteElement(element) {
 
         // remove the element from the element's array
-        this.physicalElements = _.reject(this.physicalElements, (value)=>{
+        this.elements = _.reject(this.elements, (value)=>{
             return value.id === element.id
         })
 
-        // remove the element physically from the world of the game
-        World.remove(this.engine.world, element.body, true);
+        // if the element is a physicalElement
+        if (element instanceof PhysicalElement) {
+            // remove it physically from the world
+            World.remove(this.engine.world, element.body, true);
+        }
     }
 
     /**
@@ -260,13 +254,13 @@ class Game {
 
             switch ( value.type ){
                 case "GroundJumpable":
-                    this.addPhysicalElement( new GroundJumpable( value.position.x , value.position.y , value.width , value.height ) )
+                    this.addElement( new GroundJumpable( value.position.x , value.position.y , value.width , value.height ) )
                     break
                 case "GroundNotJumpable":
-                    this.addPhysicalElement( new GroundNotJumpable( value.position.x , value.position.y , value.width , value.height ) )
+                    this.addElement( new GroundNotJumpable( value.position.x , value.position.y , value.width , value.height ) )
                     break
                 case "Respawn":
-                    this.addPositionableElement( new Respawn( value.position.x, value.position.y ))
+                    this.addElement( new Respawn( value.position.x, value.position.y ))
                     break
             }
 
@@ -277,56 +271,48 @@ class Game {
     }
 
     /**
-     * @method getPhysicalElementFromBody
-     * @description get the game physical element's id corresponding with the specified body
+     * @method getElementFromBody
+     * @description get the game element's id corresponding with the specified body
      * @param {Body} body
      */
-    getPhysicalElementFromBody( body ){
+    getElementFromBody( body ){
 
-        let returnPhysicalElement=false
+        let returnElement=false
 
-        _.each( this.physicalElements , ( value , index , array )=>{
+        _.each( this.elements , ( value , index , array )=>{
 
+            if (value instanceof PhysicalElement)
             if (value.body.id === body.id){
-                returnPhysicalElement = value
+                returnElement = value
             }
         })
 
-        return returnPhysicalElement
+        return returnElement
     }
 
     /**
      * @method handleCollision
      * @description handler that will be called for every collision pairs
-     * @param {PhysicalElement} physicalElement1
-     * @param {PhysicalElement} physicalElement2
+     * @param {Element} element1
+     * @param {Element} element2
      */
-    handleCollision( physicalElement1, physicalElement2 ){
+    handleCollision( element1 , element2 ){
 
-        physicalElement1.handleCollisionWith( physicalElement2 )
-        physicalElement2.handleCollisionWith( physicalElement1 )
+        element1.handleCollisionWith( element2 )
+        element2.handleCollisionWith( element1 )
 
     }
 
     /**
-     * @method addPositionableElement
-     * @description add a positionableElement to the game positionable elements array
-     */
-    addPositionableElement( positionableElement ){
-
-        this.positionableElements.push( positionableElement )
-    }
-
-    /**
-     * @method getPositionableElementsOfType
-     * @description Return all PositionableElements of the specified type
-     * @param {String} type
+     * @method getElementsOfType
+     * @description Return all elements of the specified type
+     * @param {Object} type
      * @returns {Array}
      */
-    getPositionableElementsOfType(type){
+    getElementsOfType(type){
         let elements = []
-        _.each( this.positionableElements , ( element )=>{
-            if ( element.constructor.name === type )
+        _.each( this.elements , ( element )=>{
+            if ( element instanceof type )
                 elements.push( element )
 
         } )

@@ -60,6 +60,9 @@ class Game {
         this.frames ++
         this.setCameraPosition( gameUpdateInfos.playerPosition )
 
+        // clean : remove physicalElements that aren't in the updateInfos
+        this.clean( gameUpdateInfos )
+
         // update all locals pseudo PhysicalElements (and their corresponding Sprites)
         _.each( gameUpdateInfos.physicalElements , ( physicalElement )=>{
 
@@ -159,7 +162,27 @@ class Game {
 
     }
 
+    /**
+     * @method clean
+     * @description remove all elements that should not be there
+     * @param {Object} gameUpdateInfos
+     */
+    clean( gameUpdateInfos ){
+        let stage = this.stage
+        this.currentGameInfos.physicalElements = _.filter(this.currentGameInfos.physicalElements, (value, key, collection)=>{
+            let isInside = false
+            _.each( gameUpdateInfos.physicalElements , ( value2 )=>{
+                if (value.id === value2.id){
+                    isInside = true
+                }
+            })
+            // if he's not inside, remove it from the stage
+            if (!isInside) stage.removeChild( value.sprite )
 
+            return isInside
+        })
+
+    }
 }
 
 module.exports = Game
