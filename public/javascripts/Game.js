@@ -50,8 +50,7 @@ class Game {
         clearInterval(this.fpsDisplayer)
         this.renderer.destroy(true)
     }
-    
-    
+
     /**
      * @method update
      * @description Update the game with (new) informations

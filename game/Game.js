@@ -4,6 +4,7 @@
 let GroundJumpable = require("./GroundJumpable")
 let GroundNotJumpable = require("./GroundNotJumpable")
 let Respawn = require( './Respawn' );
+var reissue = require('reissue');
 
 /**
  * @class Game
@@ -20,7 +21,7 @@ class Game {
     constructor(name, map) {
         // set the state of the game to "loading"
         this.state = "loading"
-
+        this.stepCount = 0 // TODO TEST
         this.id = uniqid()
         this.name = name
         this.positionableElements = []
@@ -84,6 +85,7 @@ class Game {
 
         // set the state of the game to "ready"
         this.state = "ready"
+
     }
 
     /**
@@ -91,13 +93,21 @@ class Game {
      * @description Start the game
      */
     start() {
-
         // if the game is not ready or paused, exit
         if (!(this.state === "ready" || this.state === "paused")) return
 
         // else
         // launch the main loop and save it, so it will be stopped when the game stop
-        this.mainLoop = setInterval(this.step.bind(this), 1000/60);
+        this.mainLoop = reissue.create({
+            func: function(callback){
+                this.step.bind(this)();
+                return callback();
+            },
+            interval: 1000/60,
+            context: this
+        });
+        this.mainLoop.start()
+
         this.delta = 1000/60
         this.lastStepTimestamp = new Date().getTime()
 
@@ -111,7 +121,6 @@ class Game {
      * @description Go to the next state of the game
      */
     step(){
-
         // if the game is not playing, exit
         if (this.state !== "playing") {
             return
@@ -128,9 +137,6 @@ class Game {
 
         // set the new time delta
         let delta = new Date().getTime() - this.lastStepTimestamp
-
-        // make some corrections
-        this.delta = Math.sqrt(Math.pow(1000/60,2) * ( delta / (1000/60) ))
 
         // Update the Engine
         Engine.update(this.engine, this.delta , this.delta / this.lastDelta);
