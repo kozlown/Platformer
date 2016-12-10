@@ -6,7 +6,7 @@ router.get('/', function(req, res, next) {
   res.render(
       'index',
       {
-          title: `runout !`,
+          title: `Runout.io`,
           domain: configsFront.domain,
           port: configsFront.port
       }
