@@ -60,11 +60,6 @@ class Game {
         // increment frames count
         this.frames ++
 
-        // display the time between updates
-        let timeStep = new Date().getTime()-this.lastStepTimestamp
-        if (timeStep > 20 || timeStep < 10){
-            console.log(timeStep)
-        }
         this.lastStepTimestamp = new Date().getTime()
 
         this.setCameraPosition( gameUpdateInfos.playerPosition )
