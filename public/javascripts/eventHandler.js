@@ -50,8 +50,8 @@ game = null
         _.each( data , ( value , index , array )=>{
 
             let gameId = value.id
-            // title - id - join - start
-            $( "#games" ).append( `<div class="game" id="${gameId}"><span class="name">${value.id + " - " + value.name}</span>`
+            // title - join - start
+            $( "#games" ).append( `<div class="game" id="${gameId}"><span class="name">${value.name}</span>`
                     + `<a  class="btn btn-lg btn-outline" onclick="socket.emit('joinGame','${value.id}')">Join !</a>`
                     + `<a  class="btn btn-lg btn-outline" onclick="socket.emit('startGame','${value.id}')">Start !</a></div>`)
 
