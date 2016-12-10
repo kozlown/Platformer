@@ -189,7 +189,7 @@ class Game {
             })
 
         })
-
+        gameUpdateInfos.time=new Date().getTime()
         return gameUpdateInfos
 
     }

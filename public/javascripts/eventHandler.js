@@ -45,7 +45,6 @@ game = null
     // when receiving informations about the current games
     socket.on('currentGames', (data)=>{
 
-        console.log(`current games : `, data)
         $( "#games .game" ).remove()
         _.each( data , ( value , index , array )=>{
 

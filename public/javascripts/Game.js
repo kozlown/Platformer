@@ -22,13 +22,6 @@ class Game {
             resolution: 1
         } );
 
-        // set the num of frames
-        this.frames = 0
-        this.fpsDisplayer = setInterval(()=>{
-            console.log(this.frames)
-            this.frames = 0
-        }, 1000)
-
         // Add the canvas to the HTML document
         $( renderContainerSelector ).append( this.renderer.view );
 
@@ -57,11 +50,10 @@ class Game {
      * @param {Object} gameUpdateInfos
      */
     update( gameUpdateInfos ){
-        // increment frames count
-        this.frames ++
 
         this.lastStepTimestamp = new Date().getTime()
-
+        if ((this.lastStepTimestamp-gameUpdateInfos.time)>30)
+        console.log("reception time : " + (this.lastStepTimestamp-gameUpdateInfos.time))
         this.setCameraPosition( gameUpdateInfos.playerPosition )
 
         // clean : remove physicalElements that aren't in the updateInfos
