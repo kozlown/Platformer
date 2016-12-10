@@ -97,8 +97,9 @@ module.exports = ( ()=>{
 
         socket.on(`newGame`, ( gameInfos ) => {
 
-            let game = new Game(gameInfos.name, gameInfos.map)
-            if (gamesManager.addGame(game)) { // if the game was successfully added
+            let game = new Game(gameInfos.name)
+
+            if (game.loadMap(gameInfos.map) && gamesManager.addGame(game)) { // if the game was successfully added
 
                 // send current games to everybody
                 let gamesInfos = gamesManager.getGamesInfos()

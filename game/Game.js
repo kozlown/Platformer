@@ -19,7 +19,7 @@ class Game {
      * @param {Number} fps
      * @param {String} map
      */
-    constructor(name, map) {
+    constructor(name) {
         // set the state of the game to "loading"
         this.state = "loading"
         this.id = uniqid()
@@ -80,9 +80,6 @@ class Game {
 
         // greater gravity
         this.engine.world.gravity.y = 3
-
-        // load the map
-        this.loadMap(map)
 
         // set the state of the game to "ready"
         this.state = "ready"
@@ -251,8 +248,14 @@ class Game {
      * @method loadMap
      * @description load a map
      * @param {String} map
+     * @return true if the map exists, else false
      */
     loadMap( map ){
+
+        // if the file doesn't exist
+        if (!fs.existsSync(`./game/maps/${map}.map`)){
+            return false
+        }
 
         map = JSON.parse(fs.readFileSync(`./game/maps/${map}.map`,{
             encoding: 'utf8'
@@ -274,8 +277,7 @@ class Game {
             }
 
         })
-
-
+        return true
 
     }
 
