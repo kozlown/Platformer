@@ -164,9 +164,7 @@ module.exports = ( ()=>{
 
             let gameId = socket.player.gameId
             gamesManager.getGame(gameId).deleteElement(socket.player)
-            socket.player = new Zombie(socket.player)
-            socket.player.gameId = gameId
-            gamesManager.getGame(gameId).addElement(socket.player)
+            gamesManager.getGame(gameId).addElement(new Zombie(socket.player))
 
         })
 

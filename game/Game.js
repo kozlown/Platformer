@@ -6,7 +6,6 @@ let GroundNotJumpable = require("./GroundNotJumpable")
 let PhysicalElement = require("./PhysicalElement")
 let Respawn = require( './Respawn' );
 let Player = require('./Player')
-var reissue = require('reissue');
 
 /**
  * @class Game
@@ -98,24 +97,14 @@ class Game {
         // if the game is not ready or paused, exit
         if (!(this.state === "ready" || this.state === "paused")) return
 
-        // else
-        // launch the main loop and save it, so it will be stopped when the game stop
-        this.mainLoop = reissue.create({
-            func: function(callback){
-                this.step.bind(this)();
-                return callback();
-            },
-            interval: 1000/60,
-            context: this
-        })
-        this.mainLoop.start()
-
         this.delta = 1000/60
         this.lastStepTimestamp = new Date().getTime()
 
         // set the state of the game to "playing"
         this.state = "playing"
 
+        // start step
+        this.step()
     }
 
     /**
@@ -123,6 +112,10 @@ class Game {
      * @description Go to the next state of the game
      */
     step(){
+
+        // get the start step time
+        let startStepTime = new Date().getTime()
+
         // if the game is not playing, exit
         if (this.state !== "playing") {
             return
@@ -136,7 +129,6 @@ class Game {
         _.each( players ,(player)=>{
             player.move()
         })
-
         // set the last time delta
         this.lastDelta = this.delta
 
@@ -153,6 +145,20 @@ class Game {
 
         // set lastStepTimestamp
         this.lastStepTimestamp = new Date().getTime()
+
+        // set the next step timeout
+        let endStepTime = new Date().getTime()
+        let calculationTime = endStepTime-startStepTime
+
+        // if (calculationTime < fps)
+        if ( calculationTime < 1000/60 ) {
+            // set the timeout for next step to (fps - calculationTime)
+            setTimeout(this.step.bind(this), 1000/60 - calculationTime)
+        } else {
+            // else call directly the step
+            console.log(calculationTime)
+            this.step()
+        }
     }
 
     /***
@@ -216,6 +222,9 @@ class Game {
         if (element instanceof PhysicalElement) {
             // add it physically to the world
             World.add(this.engine.world, element.body);
+        }
+        if (element instanceof Player){
+            console.log(element.socket.id)
         }
     }
 

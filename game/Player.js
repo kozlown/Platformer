@@ -28,6 +28,8 @@ class Player extends PhysicalElement {
         this.willWallJump = false
         this.name = name
         this.socket = socket
+        this.socket.player = this
+        this.gameId = this.socket.gameId
         this.body = new Bodies.rectangle(x, y, width, height, {
             inertia: Infinity,
             friction: 0,

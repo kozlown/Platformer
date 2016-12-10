@@ -2,7 +2,7 @@
  * Created by Nigel on 09/12/2016.
  */
 
-let Player = require("./Player.js")
+let Player = require("./Player")
 
 /**
  * @class Zombie
@@ -33,7 +33,8 @@ class Zombie extends Player {
         switch (physicalElement.constructor.name){
             // if it's a player, then he becomes a zombie
             case "Player":
-                physicalElement = new Zombie( physicalElement )
+                gamesManager.getGame(physicalElement.gameId).addElement(new Zombie( physicalElement ))
+                gamesManager.getGame(physicalElement.gameId).deleteElement(physicalElement)
                 break
             default:
                 // do nothing
