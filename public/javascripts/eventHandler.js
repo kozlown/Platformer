@@ -14,7 +14,7 @@ game = null
  */
 {
     socket.emit("login", {
-        name: "Nigel"+Math.random(),
+        name: `Guest (${Math.random()})`,
         x: 0,
         y: 0,
         width: 50,
