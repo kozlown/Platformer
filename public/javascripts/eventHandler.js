@@ -2,7 +2,7 @@ Game = require("./Game.js")
 jQuery = require("jquery")
 $ = jQuery
 require('bootstrap')
-_ = require("underscore")
+_ = require("lodash")
 io = require('socket.io-client')
 configs = require("../../configs/front.conf")
 socket = io(`http://${configs.domain}:${configs.port}`); // set the socket
