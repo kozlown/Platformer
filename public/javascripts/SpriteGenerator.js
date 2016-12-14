@@ -42,6 +42,15 @@ class SpriteGenerator {
                 sprite.endFill()
                 sprite.x = element.position.x - element.width / 2
                 sprite.y = element.position.y - element.height / 2
+                break
+            case "Camera":
+                sprite = new PIXI.Graphics()
+                sprite.beginFill( 0x000000, 0 )
+                sprite.drawRect( 0 , 0 , element.width , element.height )
+                sprite.endFill()
+                sprite.x = element.position.x - element.width / 2
+                sprite.y = element.position.y - element.height / 2
+                break
         }
         return sprite
     }

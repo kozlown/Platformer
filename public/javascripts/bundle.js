@@ -37733,6 +37733,26 @@ class Game {
         // Create a container object called the `stage`
         this.stage = new PIXI.Container( );
 
+        // zoom setting
+        this.stage.scale.x = 0.5
+        this.stage.scale.y = 0.5
+
+        // zoom handler
+        $( renderContainerSelector ).on("mousewheel",(e)=>{
+            if ((this.stage.scale.x+e.originalEvent.wheelDelta/1000)>0.3 && (this.stage.scale.x+e.originalEvent.wheelDelta/1000)<3){
+                this.stage.scale.x += e.originalEvent.wheelDelta/1000
+                this.stage.scale.y += e.originalEvent.wheelDelta/1000
+            }
+            else if ((this.stage.scale.x+e.originalEvent.wheelDelta/1000)<0.3){
+                this.stage.scale.x = 0.3
+                this.stage.scale.y = 0.3
+            }
+            else if ((this.stage.scale.x+e.originalEvent.wheelDelta/1000)>3){
+                this.stage.scale.x = 3
+                this.stage.scale.y = 3
+            }
+        })
+
         this.currentGameInfos = {
             physicalElements : []
         }
@@ -37756,9 +37776,7 @@ class Game {
      */
     update( gameUpdateInfos ){
 
-        this.lastStepTimestamp = new Date().getTime()
-        if ((this.lastStepTimestamp-gameUpdateInfos.time)>1000/60)
-        console.log("reception time : " + (this.lastStepTimestamp-gameUpdateInfos.time))
+        // set the position of the camera
         this.setCameraPosition( gameUpdateInfos.playerPosition )
 
         // clean : remove physicalElements that aren't in the updateInfos
@@ -37782,6 +37800,19 @@ class Game {
             }
 
         } )
+
+        // set the mask of cameras for all sprites
+        _.each( gameUpdateInfos.physicalElements , ( physicalElement )=>{
+            if (physicalElement.type !== "Camera")
+            _.each( gameUpdateInfos.physicalElements , ( value , key , collection )=>{
+
+                if (value.type === "Camera" && physicalElement.sprite){
+                    physicalElement.sprite.mask = value.sprite
+                }
+
+            })
+
+        })
 
         this.renderer.render( this.stage );
 
@@ -37856,10 +37887,10 @@ class Game {
      * @description set the camera position (stage's position)
      * @param {Object} position
      */
-    setCameraPosition( position ){
+    setCameraPosition( playerPosition ){
 
-        this.stage.position.x = position.x + this.renderer.width / 2
-        this.stage.position.y = position.y + this.renderer.height / 2
+        this.stage.position.x = playerPosition.x * this.stage.scale.x + this.renderer.width / 2
+        this.stage.position.y = playerPosition.y * this.stage.scale.y + this.renderer.height / 2
 
     }
 
@@ -37932,6 +37963,15 @@ class SpriteGenerator {
                 sprite.endFill()
                 sprite.x = element.position.x - element.width / 2
                 sprite.y = element.position.y - element.height / 2
+                break
+            case "Camera":
+                sprite = new PIXI.Graphics()
+                sprite.beginFill( 0x000000, 0 )
+                sprite.drawRect( 0 , 0 , element.width , element.height )
+                sprite.endFill()
+                sprite.x = element.position.x - element.width / 2
+                sprite.y = element.position.y - element.height / 2
+                break
         }
         return sprite
     }
@@ -38005,7 +38045,7 @@ game = null
         })
     })
 
-    socket.on('newGame', (data) => { // when receiving informations the new game creation
+    socket.on('newGame', (data) => { // when receiving informations about the new game creation
 
         if (game){
             game.destroy()

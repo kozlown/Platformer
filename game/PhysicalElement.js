@@ -81,6 +81,19 @@ class PhysicalElement extends PositionableElement {
         throw new Error("This method is abstract, you must override it before using it !")
     }
 
+    /**
+     * @method isInsideField
+     * @description know if the {PhysicalElement} is inside a field [of vision]
+     * @param {Integer} x x-axis position of the field
+     * @param {Integer} y x-axis position of the field
+     * @param {Integer} width width of the field
+     * @param {Integer} height height of the field
+     */
+    // isInsideField( x , y , width , height ){
+    //
+    //     if (pointIsInsideField(x, y, width, ))
+    //
+    // }
 
 }
 

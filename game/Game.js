@@ -4,8 +4,9 @@
 let GroundJumpable = require("./GroundJumpable")
 let GroundNotJumpable = require("./GroundNotJumpable")
 let PhysicalElement = require("./PhysicalElement")
-let Respawn = require( './Respawn' );
+let Respawn = require('./Respawn');
 let Player = require('./Player')
+let Camera = require('./Camera')
 
 /**
  * @class Game
@@ -168,8 +169,7 @@ class Game {
         // TODO make the infos depend on the player to whom the infos will be given
 
         let gameUpdateInfos = {
-            physicalElements: [],
-            cameraPosition: {}
+            physicalElements: []
         }
 
         gameUpdateInfos.playerPosition = {
@@ -177,19 +177,26 @@ class Game {
             y: -player.body.position.y
         }
 
+        _.each( this.getElementsOfType( Camera ) , ( value , key , collection )=>{
+
+            value.position.x = -gameUpdateInfos.playerPosition.x
+            value.position.y = -gameUpdateInfos.playerPosition.y
+
+        })
+
         // add all PhysicalElements being in the Game
         _.each( this.getElementsOfType( PhysicalElement ), ( element )=>{
 
             gameUpdateInfos.physicalElements.push({
                 id: element.id,
                 type: element.constructor.name,
-                position: element.body.position,
+                position: element.body ? element.body.position : element.position,
                 width: element.width,
                 height: element.height
             })
 
         })
-        gameUpdateInfos.time=new Date().getTime()
+
         return gameUpdateInfos
 
     }
@@ -216,7 +223,7 @@ class Game {
         this.elements.push(element);
 
         // if the element is a physicalElement
-        if (element instanceof PhysicalElement) {
+        if (element instanceof PhysicalElement && element.body) {
             // add it physically to the world
             World.add(this.engine.world, element.body);
         }
@@ -238,7 +245,7 @@ class Game {
         })
 
         // if the element is a physicalElement
-        if (element instanceof PhysicalElement) {
+        if (element instanceof PhysicalElement && element.body) {
             // remove it physically from the world
             World.remove(this.engine.world, element.body, true);
         }
@@ -274,6 +281,8 @@ class Game {
                 case "Respawn":
                     this.addElement( new Respawn( value.position.x, value.position.y ))
                     break
+                case "Camera":
+                    this.addElement( new Camera( 0, 0, value.width, value.height ))
             }
 
         })
@@ -292,7 +301,7 @@ class Game {
 
         _.each( this.elements , ( value , index , array )=>{
 
-            if (value instanceof PhysicalElement)
+            if (value instanceof PhysicalElement && value.body)
             if (value.body.id === body.id){
                 returnElement = value
             }

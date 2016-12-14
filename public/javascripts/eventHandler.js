@@ -64,7 +64,7 @@ game = null
         })
     })
 
-    socket.on('newGame', (data) => { // when receiving informations the new game creation
+    socket.on('newGame', (data) => { // when receiving informations about the new game creation
 
         if (game){
             game.destroy()
