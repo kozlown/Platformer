@@ -82,18 +82,41 @@ class PhysicalElement extends PositionableElement {
     }
 
     /**
-     * @method isInsideField
-     * @description know if the {PhysicalElement} is inside a field [of vision]
-     * @param {Integer} x x-axis position of the field
-     * @param {Integer} y x-axis position of the field
-     * @param {Integer} width width of the field
-     * @param {Integer} height height of the field
+     * @method collision
+     * @description know if two rectangles physicalElements are colliding,
+     * see https://developer.mozilla.org/en-US/docs/Games/Techniques/2D_collision_detection
+     * @return {Boolean} true if they are colliding, else {Boolean} false
      */
-    // isInsideField( x , y , width , height ){
-    //
-    //     if (pointIsInsideField(x, y, width, ))
-    //
-    // }
+    static collision(element1, element2){
+        element1.position = element1.body ? element1.body.position : element1.position
+        element2.position = element2.body ? element2.body.position : element2.position
+
+        let sidesOf = (element)=>{
+            return {
+                left: element.position.x - element.width/2,
+                right: element.position.x + element.width/2,
+                top: element.position.y + element.height/2,
+                bottom: element.position.y - element.height/2
+            }
+        }
+
+        let s1 = sidesOf(element1)
+        let s2 = sidesOf(element2)
+
+        if (
+            (
+                s1.left < s2.right
+                && s1.right > s2.left
+                && s1.bottom < s2.top
+                && s1.top > s2.bottom
+            )
+        ){
+
+            return true
+        }
+
+        return false
+    }
 
 }
 

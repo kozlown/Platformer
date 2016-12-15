@@ -177,24 +177,38 @@ class Game {
             y: -player.body.position.y
         }
 
+        let camera
         _.each( this.getElementsOfType( Camera ) , ( value , key , collection )=>{
 
-            value.position.x = -gameUpdateInfos.playerPosition.x
-            value.position.y = -gameUpdateInfos.playerPosition.y
+            value.position.x = player.body.position.x
+            value.position.y = player.body.position.y
+            camera = value
 
         })
-
-        // add all PhysicalElements being in the Game
+        // add all PhysicalElements being in the Game and in the field of vision of the player
         _.each( this.getElementsOfType( PhysicalElement ), ( element )=>{
+            let isInsideFieldOfVision = false
 
-            gameUpdateInfos.physicalElements.push({
-                id: element.id,
-                type: element.constructor.name,
-                position: element.body ? element.body.position : element.position,
-                width: element.width,
-                height: element.height
-            })
+            // If the physicalElement is not a camera
+            if (!(element instanceof Camera)){
+                // Check if the physicalElement "collide" with the camera,
+                isInsideFieldOfVision = PhysicalElement.collision(element, camera)
 
+            }
+            else {
+                isInsideFieldOfVision = true
+            }
+
+            // if the physicalElement is inside the field of vision
+            if (isInsideFieldOfVision){
+                gameUpdateInfos.physicalElements.push({
+                    id: element.id,
+                    type: element.constructor.name,
+                    position: element.body ? element.body.position : element.position,
+                    width: element.width,
+                    height: element.height
+                })
+            }
         })
 
         return gameUpdateInfos

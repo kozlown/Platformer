@@ -37802,18 +37802,9 @@ class Game {
         } )
 
         // set the mask of cameras for all sprites
-        _.each( gameUpdateInfos.physicalElements , ( physicalElement )=>{
-            if (physicalElement.type !== "Camera")
-            _.each( gameUpdateInfos.physicalElements , ( value , key , collection )=>{
+        this.setMasks()
 
-                if (value.type === "Camera" && physicalElement.sprite){
-                    physicalElement.sprite.mask = value.sprite
-                }
-
-            })
-
-        })
-
+        // render the stage
         this.renderer.render( this.stage );
 
     }
@@ -37914,6 +37905,30 @@ class Game {
             return isInside
         })
 
+    }
+
+    /**
+     * @method setMasks
+     * @description set the masks for all sprites (which should be the camera)
+     */
+    setMasks(  ){
+
+        _.each( this.currentGameInfos.physicalElements , ( physicalElement )=>{
+
+            // if it's not the camera
+            if (physicalElement.type !== "Camera"){
+
+                _.each( this.currentGameInfos.physicalElements , ( value , key , collection )=>{
+
+                    // if it's the camera and the physicalElement has already a sprite
+                    if (value.type === "Camera" && physicalElement.sprite){
+
+                        // set the mask of the physicalElement to the camera's field
+                        physicalElement.sprite.mask = value.sprite
+                    }
+                })
+            }
+        })
     }
 }
 
