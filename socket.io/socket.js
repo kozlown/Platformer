@@ -67,8 +67,10 @@ module.exports = ( ()=>{
                  * Jump
                  */
                 case 38:
+                    socket.player.state.wantsToJump = true
                     socket.player.jump()
                     break
+
             }
 
         })
@@ -91,6 +93,11 @@ module.exports = ( ()=>{
                     socket.player.state.isMovingRight = false
                     break
 
+                /**
+                 * Jump
+                 */
+                case 38:
+                    socket.player.state.wantsToJump = false
             }
 
         })

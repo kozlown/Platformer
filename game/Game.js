@@ -127,6 +127,7 @@ class Game {
         _.each( players ,(player)=>{
             player.move()
         })
+
         // set the last time delta
         this.lastDelta = this.delta
 

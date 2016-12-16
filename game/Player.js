@@ -22,10 +22,13 @@ class Player extends PhysicalElement {
      */
     constructor(name, x, y, width, height, socket) {
 
-        super(x,y,width,height)
-        this.jumpsToUse = 2
-        this.jumpsUsed = 0
-        this.willWallJump = false
+        super(x, y, width, height)
+        this.state = {
+            name: "undefined",
+            allowedJumps: 2,
+            usedJumps: 0,
+            wallJump: false
+        }
         this.name = name
         this.socket = socket
         this.socket.player = this
@@ -35,16 +38,17 @@ class Player extends PhysicalElement {
             friction: 0,
             frictionAir: 0.05,
             mass: 3,
-            inverseMass: 1/2,
+            inverseMass: 1 / 2,
             frictionStatic: 0,
         })
+        this.collisions = {}
     }
 
     /**
      * @method moveLeft
      * @description applies one more movement step to the left
      */
-    moveLeft(){
+    moveLeft() {
 
         let force = Matter.Vector.create(-0.5 / 60, 0)
         Body.applyForce(this.body, this.body.position, force)
@@ -55,7 +59,7 @@ class Player extends PhysicalElement {
      * @method moveRight
      * @description applies one more movement step to the right
      */
-    moveRight(){
+    moveRight() {
 
         let force = Matter.Vector.create(0.5 / 60, 0)
         Body.applyForce(this.body, this.body.position, force)
@@ -66,53 +70,73 @@ class Player extends PhysicalElement {
      * @method jump
      * @description jumps (apply single upward force)
      */
-    jump(){
+    jump() {
 
-        // check if the users has jumps
-        if (this.jumpsUsed >= this.jumpsToUse){
+        // check if the player has jumps
+        if (this.state.usedJumps >= this.state.allowedJumps) {
             return
         }
+        // increment the number of used jumps
+        this.state.usedJumps++
 
-        // increment the number of jumps used
-        this.jumpsUsed++
-
-        // first set the y-velocity to 0
-        let velocity = Matter.Vector.create( this.body.velocity.x, 0 )
-        Body.setVelocity(this.body, velocity)
-
-        // then apply force
-        let x;
-        switch (this.willWallJump){
-            case "right":
-                x = 0.15
-                break
-            case "left":
-                x = -0.15
-                break
-            case false:
-                x = 0
+        // determine new velocity on x-axis
+        let x = this.body.velocity.x
+        if (this.state.name === "on the side") {
+            switch (this.state.wallJump) {
+                case "right":
+                    x = 15
+                    break
+                case "left":
+                    x = -15
+                    break
+            }
         }
-        let force = Matter.Vector.create(x, -0.32)
-        Body.applyForce(this.body, this.body.position, force)
+
+        // determine new velocity on y-axis
+        let y = -33
+
+        // set a new vector of with new velocity
+        let newVelocity = Matter.Vector.create(x, y)
+
+        // Apply the new velocity to the player
+        Body.setVelocity(this.body, newVelocity)
     }
 
     /**
      * @method move
      * @description calls movement functions depending of the player's state ( movingRight | movingLeft | etc. )
      */
-    move(){
-        if (this.state.isMovingLeft){
+    move() {
 
-            this.moveLeft()
+        // if the player wants to move on the left
+        if (this.state.isMovingLeft) {
 
+            // if the player is on the side
+            // he must take a time to move out
+            if (this.state.name == "on the side") {
+
+                setTimeout(this.moveLeft.bind(this), 100)
+            }
+            else {
+
+                this.moveLeft()
+            }
         }
 
-        if (this.state.isMovingRight){
+        // if the player wants to move on the right
+        if (this.state.isMovingRight) {
 
-            this.moveRight()
+            // if the player is on the side
+            // he must take a time to move out
+            if (this.state.name == "on the side") {
 
+                setTimeout(this.moveRight.bind(this), 100)
+            }
+            else {
+
+                this.moveRight()
+            }
         }
-
     }
 
     /**
@@ -121,18 +145,16 @@ class Player extends PhysicalElement {
      * @description handle collision start with another PhysicalElement
      * @param {PhysicalElement} physicalElement
      */
-    handleCollisionStartWith( physicalElement ){
-        this.velocityBefore = {
-            x: this.body.velocity.x,
-            y: this.body.velocity.y
-        }
-        switch (physicalElement.constructor.name){
+    handleCollisionStartWith(physicalElement) {
 
-            default:
-                // do nothing
-                break
+        this.collisions[physicalElement.id] = {
+            positionBefore: {
+                x: this.body.position.x,
+                y: this.body.position.y
+            },
+            physicalElement: physicalElement,
+            active: false
         }
-
     }
 
     /**
@@ -141,38 +163,33 @@ class Player extends PhysicalElement {
      * @description handle collision active (after engine update) with another PhysicalElement
      * @param {PhysicalElement} physicalElement
      */
-    handleCollisionActiveWith( physicalElement ){
-        let velocity = this.body.velocity
-        switch (physicalElement.constructor.name){
+    handleCollisionActiveWith(physicalElement) {
 
-            case "GroundJumpable":
-                // if ( v.x=0 && v.before.x!=0 )
-                // if coming from the side
-                if ( velocity.x < 0.00001 && velocity.x > -0.00001 && ( this.velocityBefore.x < -0.00001 || this.velocityBefore.x > 0.00001 ) ){
-                    this.jumpsUsed = 1
-                    this.willWallJump = this.velocityBefore.x > 0 ? "left" : "right"
-                    this.velocityBefore.x = 0
-                }
+        let positionBefore = this.collisions[physicalElement.id].positionBefore
 
-                // ( v.before.y>0 && v.y=0 )
-                // if coming from the top
-                else if ( this.velocityBefore.y > 0 && velocity.y < 0.00001 && velocity.y > -0.00001 ){
-                    // reset the number of jumps used
-                    this.jumpsUsed = 0
-                }
-                break
-            case "GroundNotJumpable":
-                // ( v.before.y>0 && v.y=0 )
-                // if coming from the top
-                if ( this.velocityBefore.y > 0 && velocity.y < 0.00001 && velocity.y > -0.00001 ){
-                    // reset the number of jumps used
-                    this.jumpsUsed = 0
-                }
-                break
-            default:
-                // do nothing
-                break
+        // if it's the first time that the event "CollisionActive" is triggered for this collision
+        if (!this.collisions[physicalElement.id].positionAfter) {
+
+            // set the velocityAfter property of the collision to the actual velocity of the player
+            this.collisions[physicalElement.id].positionAfter = {
+                x: this.body.position.x,
+                y: this.body.position.y
+            }
         }
+
+        // active the collision
+        this.collisions[physicalElement.id].active = true
+
+        // update the state of the player
+        this.updateState()
+
+        // if the player wants to jump
+        if (this.state.wantsToJump) {
+
+            // try to jump
+            this.jump()
+        }
+
 
     }
 
@@ -182,18 +199,95 @@ class Player extends PhysicalElement {
      * @description handle collision end (collision that have ended in the current tick) with another PhysicalElement
      * @param {PhysicalElement} physicalElement
      */
-    handleCollisionEndWith( physicalElement ){
+    handleCollisionEndWith(physicalElement) {
 
-        switch (physicalElement.constructor.name){
-            case "GroundJumpable":
-                this.willWallJump = false
-            default:
-                // do nothing
-                break
-        }
-
+        // remove the collision from player.collisions
+        delete this.collisions[physicalElement.id]
     }
 
+    /**
+     * @method updateState
+     * @description Update the state of the player depending of his actual collisions
+     */
+    updateState() {
+        // set the state name to "falling"
+        this.state.name = "falling"
+        _.each(this.collisions, (collision, key, collection) => {
+
+            let pb = collision.positionBefore
+            let pa = collision.positionAfter
+
+            // check if the collision is active
+            if (collision.active)
+                // determine the state depending of the type of physicalElement colliding with the player
+                switch (collision.physicalElement.constructor.name) {
+                    case "GroundJumpable": {
+
+                        // if coming from the left side
+                        if (_.floor(pa.x + this.width / 2) === _.floor(collision.physicalElement.body.position.x - collision.physicalElement.width / 2)) {
+
+                            // and if not standing on a block
+                            if (this.state.name !== "stand") {
+
+                                // set the number of used jumps to 1
+                                this.state.usedJumps = 1
+
+                                // set the wallJump state attribute to "left"
+                                this.state.wallJump = "left"
+
+                                // set the state to "on the side"
+                                this.state.name = "on the side"
+                            }
+                        }
+
+                        // if coming from the right side
+                        if (_.ceil(pa.x - this.width / 2) === _.ceil(collision.physicalElement.body.position.x + collision.physicalElement.width / 2)) {
+
+                            // and if not standing on a block
+                            if (this.state.name !== "stand") {
+
+                                // set the number of used jumps to 1
+                                this.state.usedJumps = 1
+
+                                // set the wallJump state attribute to "left"
+                                this.state.wallJump = "right"
+
+                                // set the state to "on the side"
+                                this.state.name = "on the side"
+                            }
+                        }
+
+                        // if standing on the top
+                        if (_.floor(pa.y + this.height / 2) === _.floor(collision.physicalElement.body.position.y - collision.physicalElement.height / 2)) {
+
+                            // reset the number of used jumps
+                            this.state.usedJumps = 0
+
+                            // set the state to "stand"
+                            this.state.name = "stand"
+                        }
+                        break
+                    }
+                    case "GroundNotJumpable": {
+                        // if standing on the top
+                        if (_.floor(pa.y + this.height / 2) === _.floor(collision.physicalElement.body.position.y - collision.physicalElement.height / 2)) {
+
+                            // reset the number of used jumps
+                            this.state.usedJumps = 0
+
+                            // set the state to "stand"
+                            this.state.name = "stand"
+                        }
+                        break
+                    }
+                    default: {
+                        // do nothing
+                        break
+                    }
+                }
+        })
+
+    }
 }
 
 module.exports = Player
