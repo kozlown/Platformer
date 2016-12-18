@@ -17,7 +17,6 @@ class Zombie extends Player {
     constructor( player ){
 
         super( player.name, player.body.position.x, player.body.position.y, player.width, player.height, player.socket )
-
     }
 
     /**
@@ -26,13 +25,16 @@ class Zombie extends Player {
      * @description handle collision start with another PhysicalElement
      * @param {PhysicalElement} physicalElement
      */
-    handleCollisionStartWith( physicalElement ){
+    handleCollisionActiveWith( physicalElement ){
 
-        super.handleCollisionStartWith( physicalElement )
+        super.handleCollisionActiveWith( physicalElement )
 
         switch (physicalElement.constructor.name){
             // if it's a player, then he becomes a zombie
-            case "Player":
+            case "Runner":
+                // if the runner is immunized, do nothing
+                if (physicalElement.state.immunity) break
+                // else he becomes a zombie
                 gamesManager.getGame(physicalElement.gameId).addElement(new Zombie( physicalElement ))
                 gamesManager.getGame(physicalElement.gameId).deleteElement(physicalElement)
                 break

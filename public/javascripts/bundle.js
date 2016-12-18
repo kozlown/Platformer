@@ -37943,7 +37943,7 @@ class SpriteGenerator {
     static generate( element ){
         let sprite
         switch ( element.type ){
-            case "Player":
+            case "Runner":
                 sprite = new PIXI.Graphics()
                 sprite.lineStyle( 1 , 0x666CFF , 1 )
                 sprite.beginFill( 0x66CCFF )

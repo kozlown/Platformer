@@ -24,6 +24,7 @@ class Game {
         // set the state of the game to "loading"
         this.state = "loading"
         this.id = uniqid()
+        console.log("new game: "+ this.id)
         this.name = name
         this.elements = []
 
@@ -241,9 +242,6 @@ class Game {
         if (element instanceof PhysicalElement && element.body) {
             // add it physically to the world
             World.add(this.engine.world, element.body);
-        }
-        if (element instanceof Player){
-            console.log(element.socket.id)
         }
     }
 

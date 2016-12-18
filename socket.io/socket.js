@@ -1,19 +1,20 @@
-var Game = require( '../game/Game' );
+var Game = require('../game/Game');
 var PhysicalElement = require('../game/PhysicalElement')
-var Player = require( '../game/Player' );
-var Zombie = require( '../game/Zombie' );
-var Ground = require( '../game/Ground' );
-var Respawn = require( '../game/Respawn' );
+var Player = require('../game/Player');
+var Runner = require('../game/Runner');
+var Zombie = require('../game/Zombie');
+var Ground = require('../game/Ground');
+var Respawn = require('../game/Respawn');
 
-module.exports = ( ()=>{
+module.exports = ( () => {
 
     return (socket) => {
 
-        socket.on(`login`, ( playerInfos ) => {
+        socket.on(`login`, (playerInfos) => {
 
             // create a new player linked with the socket
             socket.player =
-                new Player (
+                new Player(
                     playerInfos.name,
                     playerInfos.x,
                     playerInfos.y,
@@ -35,7 +36,7 @@ module.exports = ( ()=>{
         socket.on(`logout`, () => {
 
             // if the player was playing and the game exists
-            if (socket.player.game && gamesManager.getGame(socket.player.game.id)){
+            if (socket.player.game && gamesManager.getGame(socket.player.game.id)) {
                 // he is disconnected from the game
                 gamesManager.getGame(socket.player.game.id).removePlayer(socket.player)
             }
@@ -45,7 +46,7 @@ module.exports = ( ()=>{
 
         });
 
-        socket.on(`keydown`, ( keyCode ) => {
+        socket.on(`keydown`, (keyCode) => {
 
             switch (keyCode) {
 
@@ -75,7 +76,7 @@ module.exports = ( ()=>{
 
         })
 
-        socket.on(`keyup`, ( keyCode ) => {
+        socket.on(`keyup`, (keyCode) => {
 
             switch (keyCode) {
 
@@ -102,7 +103,7 @@ module.exports = ( ()=>{
 
         })
 
-        socket.on(`newGame`, ( gameInfos ) => {
+        socket.on(`newGame`, (gameInfos) => {
 
             let game = new Game(gameInfos.name)
 
@@ -117,58 +118,61 @@ module.exports = ( ()=>{
 
         })
 
-        socket.on(`joinGame`, ( gameId )=>{
+        socket.on(`joinGame`, (gameId) => {
             let gameToJoin = gamesManager.getGame(gameId)
 
             // if the game doesn't exist, exit
             if (!gameToJoin) return
 
-            /**
-             * Check if the player is already in a game
-             */
+            // Check if the player is already in a game
             let isPlayerAlreadyInAGame = false
-            _.each( gamesManager.games , ( game , index , array )=>{
-                _.each( game.getElementsOfType( Player ) , ( player , index , array )=>{
-                    if (player.id === socket.player.id){
+            _.each(gamesManager.games, (game, index, array) => {
+                _.each(game.getElementsOfType(Player), (player, index, array) => {
+                    if (player.id === socket.player.id) {
                         isPlayerAlreadyInAGame = game.id
                     }
                 })
             })
+            // set the socket gameID
+            socket.gameId = gameId
 
-            /**
-             * if he's in a game then make him exit this game
-             */
-            if (isPlayerAlreadyInAGame){
+            // if he's in a game then make him exit this game
+            if (isPlayerAlreadyInAGame) {
                 gamesManager.getGame(isPlayerAlreadyInAGame).deleteElement(socket.player)
             }
 
-            /**
-             * set his position to a random respawn point of the game
-             */
-            let respawns = gameToJoin.getElementsOfType( Respawn )
-            let respawn = respawns[_.random(0, respawns.length-1)]
+            // determine if the player should be a Zombie or a Runner
+            // if there are more Runners than Zombies
+            if (gameToJoin.getElementsOfType(Runner).length > gameToJoin.getElementsOfType(Zombie).length){
+                // the new Player is a Zombie
+                socket.player = new Zombie(socket.player)
+            }
+            // else
+            else {
+                // the new Player is a Runner
+                socket.player = new Runner(socket.player)
+            }
+
+            // set his position to a random respawn point of the game
+            let respawns = gameToJoin.getElementsOfType(Respawn)
+            let respawn = respawns[_.random(0, respawns.length - 1)]
             socket.player.setPosition(respawn.position.x, respawn.position.y)
 
-            /**
-             * make him join the game
-             */
-            gameToJoin.addElement( socket.player )
-            socket.player.gameId = gameId
+            // make him join the game
+            gameToJoin.addElement(socket.player)
 
             // he get the infos so he can display the map
-            socket.emit("newGame",  gameToJoin.getGameUpdateInfos(socket.player))
+            socket.emit("newGame", gameToJoin.getGameUpdateInfos(socket.player))
 
-            /**
-             * Send new current games infos to the players
-             */
+            // send new current games infos to the players
             let gamesInfos = gamesManager.getGamesInfos()
 
             socket.emit('currentGames', gamesInfos)
             socket.broadcast.emit('currentGames', gamesInfos)
 
-        } )
+        })
 
-        socket.on(`becomeZombie`, (  )=>{
+        socket.on(`becomeZombie`, () => {
 
             let gameId = socket.player.gameId
             gamesManager.getGame(gameId).deleteElement(socket.player)
@@ -176,7 +180,7 @@ module.exports = ( ()=>{
 
         })
 
-        socket.on(`startGame`, ( gameId )=>{
+        socket.on(`startGame`, (gameId) => {
             let gameToStart = gamesManager.getGame(gameId)
 
             // if the game doesn't exist, exit
@@ -185,7 +189,7 @@ module.exports = ( ()=>{
             // else, start the game
             gameToStart.start()
 
-        } )
+        })
     }
 
 } );
