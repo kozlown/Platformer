@@ -115,48 +115,63 @@ class Game {
         // get the start step time
         let startStepTime = new Date().getTime()
 
+        /**
+         * Game & Engine Update
+         */
         // if the game is not playing, exit
         if (this.state !== "playing") {
             return
         }
-
         // else
         // get every player and zombies
         let players = this.getElementsOfType( Player )
-
         // move them
         _.each( players ,(player)=>{
             player.move()
         })
-
         // set the last time delta
         this.lastDelta = this.delta
-
         // set the new time delta
         let delta = new Date().getTime() - this.lastStepTimestamp
-
-        // Update the Engine
+        // update the Engine
         Engine.update(this.engine, this.delta , this.delta / this.lastDelta);
+        // set the end of calculation time
+        let endCalculationTime = new Date().getTime()
 
-        // Send informations to the players
+        /**
+         * Send Update to players
+         */
+        // send informations to the players
         _.each( players ,(player)=>{
             player.socket.emit("gameUpdate", this.getGameUpdateInfos(player))
         })
+        let endSendingTime = new Date().getTime()
 
+        /**
+         * Display performance statistics
+         */
+        if ((endSendingTime - endCalculationTime + endCalculationTime - startStepTime)>1000/60){
+            console.log(`Calculation time: ${endCalculationTime - startStepTime}`)
+            console.log(`Sending time: ${endSendingTime - endCalculationTime}`)
+        }
+
+        /**
+         * Get current step duration
+         */
+        let endStepTime = new Date().getTime()
+        let stepTime = endStepTime-startStepTime
+
+        /**
+         * Set next step Timeout
+         */
         // set lastStepTimestamp
         this.lastStepTimestamp = new Date().getTime()
-
-        // set the next step timeout
-        let endStepTime = new Date().getTime()
-        let calculationTime = endStepTime-startStepTime
-
-        // if (calculationTime < fps)
-        if ( calculationTime < 1000/60 ) {
-            // set the timeout for next step to (fps - calculationTime)
-            setTimeout(this.step.bind(this), 1000/60 - calculationTime)
+        // if (stepTime < fps)
+        if ( stepTime < 1000/60 ) {
+            // set the timeout for next step to (fps - stepTime)
+            setTimeout(this.step.bind(this), 1000/60 - stepTime)
         } else {
             // else call directly the step
-            console.log(calculationTime)
             this.step()
         }
     }
