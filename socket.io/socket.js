@@ -141,9 +141,12 @@ module.exports = ( () => {
             socket.on(`joinGame`, (gameId) => {
                 // set the last action timestamp
                 socket.lastActionTimestamp = new Date().getTime()
-                let gameToJoin = gamesManager.getGame(gameId)
+
+                // initialise the score of the player
+                socket.score = 100
 
                 // if the game doesn't exist, exit
+                let gameToJoin = gamesManager.getGame(gameId)
                 if (!gameToJoin) return
 
                 // Check if the player is already in a game

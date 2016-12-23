@@ -107,7 +107,9 @@ class GamesManager {
                 name: value.name,
                 players: _.map( value.getElementsOfType(Player) , ( value , key )=>{
                     return {
-                        name: value.name
+                        name: value.name,
+                        score: value.socket.score,
+                        rank: value.socket.rank
                     }
                 })
             })

@@ -6,6 +6,8 @@ let GroundNotJumpable = require("./GroundNotJumpable")
 let PhysicalElement = require("./PhysicalElement")
 let Respawn = require('./Respawn');
 let Player = require('./Player')
+let Runner = require('./Runner')
+let Zombie = require('./Zombie')
 let Camera = require('./Camera')
 
 /**
@@ -102,6 +104,9 @@ class Game {
         // set the state of the game to "playing"
         this.state = "playing"
 
+        // update points every second
+        this.scoresUpdater = setInterval(this.updateScores.bind(this), 1000)
+
         // start step
         this.step()
     }
@@ -183,7 +188,6 @@ class Game {
      * @returns {{}}
      */
     getGameUpdateInfos(player){
-        // TODO make the infos depend on the player to whom the infos will be given
 
         let gameUpdateInfos = {
             physicalElements: []
@@ -223,7 +227,8 @@ class Game {
                     type: element.constructor.name,
                     position: element.body ? element.body.position : element.position,
                     width: element.width,
-                    height: element.height
+                    height: element.height,
+                    score: element.socket ? element.socket.score : null
                 })
             }
         })
@@ -238,8 +243,7 @@ class Game {
      */
     end() {
 
-        // stop the main loop
-       this.mainLoop.stop()
+       this.state = "ended"
 
     }
 
@@ -367,6 +371,41 @@ class Game {
         return elements
     }
 
+    /**
+     * @method updateScores
+     * @description update the scores of the players in the game
+     */
+    updateScores(  ){
+
+        _.each( this.getElementsOfType(Zombie) , ( value , key , collection )=>{
+
+            // decrease score by 1%
+            value.socket.score -= _.floor(value.socket.score / 100)
+            console.log(value.name+ " : "+value.socket.rank + " : "+value.socket.score)
+        })
+
+        _.each( this.getElementsOfType(Runner) , ( value , key , collection )=>{
+
+            // increase in score by 10 points
+            value.socket.score += 10
+            console.log(value.name+ " : "+value.socket.rank + " : "+value.socket.score)
+        })
+
+        this.updateRanks()
+    }
+    
+    /**
+     * @method updateRanks
+     * @description update ranks of all players
+     */
+    updateRanks(  ){
+    
+        _.each( _.orderBy(this.getElementsOfType(Player), [(player)=>{return player.socket.score}], ["desc"]) , ( value , key , collection )=>{
+            
+            value.socket.rank = key+1
+        })
+    
+    }
 }
 
 module.exports = Game;
