@@ -7,14 +7,14 @@ io = require('socket.io-client')
 configs = require("../../configs/front.conf")
 socket = io(`http://${configs.domain}:${configs.port}`); // set the socket
 
-
+name = `Happy Guest ${_.random(0.01, 0.99)}`
 game = null
 /**
 @description SOCKET CONNECTION
  */
-{
+
     socket.emit("login", {
-        name: `Guest (${Math.random()})`,
+        name: name,
         x: 0,
         y: 0,
         width: 50,
@@ -31,20 +31,20 @@ game = null
     })
 
     socket.on('disconnected', (data) => { // when disconnected
-        console.log("disconnected")
+        $('#menu').show()
+        game.destroy()
     })
-}
+
 
 
 
 /**
  @description SOCKET EVENTS HANDLERS
  */
-{
+
 
     // when receiving informations about the current games
     socket.on('currentGames', (data)=>{
-
         $( "#games .game" ).remove()
         _.each( data , ( value , index , array )=>{
 
@@ -56,16 +56,13 @@ game = null
 
             // players
             $( `#${gameId}` ).append("<div class='players'></div>")
-            _.each( value.players , ( value , index , array )=>{
-
-                $( `#${gameId} .players` ).append(`<div class="player"><span>${value.name}</span></div>`)
-
+            _.each( _.orderBy(value.players, [(player)=>{return player.score}], ["desc"]) , ( value , index , array )=> {
+                $(`#${gameId} .players`).append(`<div class="player"><span>${value.name}</span></div>`)
             })
         })
     })
 
-    socket.on('newGame', (data) => { // when receiving informations about the new game creation
-
+    socket.on('gameJoined', (data) => { // when receiving informations about the game he joined
         if (game){
             game.destroy()
         }
@@ -73,20 +70,36 @@ game = null
         socket.on('gameUpdate', game.update.bind(game))
     })
 
-}
+    socket.on('rankingInfos', (data) => {
+        // Display ranking
+        $(`#ingame #ranking`).empty()
+        _.each( _.orderBy(data, [(player)=>{return player.rank}], ["asc"]) , ( value , index , array )=> {
+            if (value.name !== name) {
+                $(`#ingame #ranking`).append(`<div class="player"><span>${value.rank} - </span><span>@${value.name}</span><span> (${value.score})</span></div>`)
+            }
+            else {
+                $(`#ingame #ranking`).append(`<div class="player you"><span>${value.rank} - </span><span>@${value.name}</span><span> (${value.score})</span></div>`)
+            }
+        })
+    })
 
+    socket.on('durationBeforeDisconnection', (duration)=>{
+        $("#durationBeforeDisconnection .duration").html(duration)
+        $("#durationBeforeDisconnection").show()
+
+    })
 
 
 /**
 @description KEYS HANDLER
  */
-{
+
 
     let keysDown = new Set() // all keys down
     let eventZone = $(document) // set the zone where events trigger
 
     eventZone.on("keydown", (e) => {
-
+        $("#durationBeforeDisconnection").hide()
         if (!keysDown.has(e.which)) {
 
             keysDown.add(e.which)
@@ -115,5 +128,5 @@ game = null
 
     })
 
-}
+
 

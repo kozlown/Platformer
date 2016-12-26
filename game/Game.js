@@ -190,6 +190,7 @@ class Game {
     getGameUpdateInfos(player){
 
         let gameUpdateInfos = {
+            id: this.id,
             physicalElements: []
         }
 
@@ -228,7 +229,8 @@ class Game {
                     position: element.body ? element.body.position : element.position,
                     width: element.width,
                     height: element.height,
-                    score: element.socket ? element.socket.score : null
+                    score: element.socket ? element.socket.score : null,
+                    rank: element.socket ? element.socket.rank : null
                 })
             }
         })
@@ -381,17 +383,28 @@ class Game {
 
             // decrease score by 1%
             value.socket.score -= _.floor(value.socket.score / 100)
-            console.log(value.name+ " : "+value.socket.rank + " : "+value.socket.score)
         })
 
         _.each( this.getElementsOfType(Runner) , ( value , key , collection )=>{
 
             // increase in score by 10 points
             value.socket.score += 10
-            console.log(value.name+ " : "+value.socket.rank + " : "+value.socket.score)
         })
 
         this.updateRanks()
+
+        let rankingInfos = _.map(this.getElementsOfType(Player), (player)=>{
+            return {
+                name: player.name,
+                score: player.socket.score,
+                rank: player.socket.rank,
+            }
+        })
+
+        _.each( this.getElementsOfType(Player) , ( value , key , collection )=>{
+
+            value.socket.emit('rankingInfos', rankingInfos )
+        })
     }
     
     /**

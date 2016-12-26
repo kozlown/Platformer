@@ -6,9 +6,14 @@ var Zombie = require('../game/Zombie');
 var Ground = require('../game/Ground');
 var Respawn = require('../game/Respawn');
 
+
 module.exports = ( () => {
 
     return (socket) => {
+        setInterval((  )=>{
+            let gamesInfos = gamesManager.getGamesInfos()
+            socket.broadcast.emit('currentGames', gamesInfos)
+        }, 1000)
 
         socket.on(`login`, (playerInfos) => {
             // set the last action timestamp
@@ -16,11 +21,18 @@ module.exports = ( () => {
             // check every second if the last action was made in the last minute
             // if not, disconnect the player
             socket.checkActive = setInterval(()=> {
-                if (new Date().getTime() - socket.lastActionTimestamp > 60000){
+                let durationBeforeDisconnection = _.floor((60000 - (new Date().getTime() - socket.lastActionTimestamp))/1000)
+                if (durationBeforeDisconnection <= 10){
+                    // if the player was playing and the game exists
+                    if (socket.player.gameId && gamesManager.getGame(socket.player.gameId)) {
+                        // tell him the duration before his disconnection
+                        socket.emit("durationBeforeDisconnection", (durationBeforeDisconnection))
+                    }
+                }
+                if (durationBeforeDisconnection < 0){
                     // if the player was playing and the game exists
                     if (socket.player.gameId && gamesManager.getGame(socket.player.gameId)) {
                         // he is disconnected from the game
-                        console.log("remove")
                         gamesManager.getGame(socket.player.gameId).deleteElement(socket.player)
                     }
 
@@ -187,13 +199,7 @@ module.exports = ( () => {
                 gameToJoin.addElement(socket.player)
 
                 // he get the infos so he can display the map
-                socket.emit("newGame", gameToJoin.getGameUpdateInfos(socket.player))
-
-                // send new current games infos to the players
-                let gamesInfos = gamesManager.getGamesInfos()
-
-                socket.emit('currentGames', gamesInfos)
-                socket.broadcast.emit('currentGames', gamesInfos)
+                socket.emit("gameJoined", gameToJoin.getGameUpdateInfos(socket.player))
 
             })
 

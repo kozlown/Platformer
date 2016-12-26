@@ -51,8 +51,10 @@ class Game {
         this.currentGameInfos = {
             physicalElements : []
         }
+        this.id = startingGameInfos.id
         this.update(startingGameInfos)
-
+        this.players = null
+        $("#ingame").show()
     }
     
     /**
@@ -60,8 +62,9 @@ class Game {
      * @description completely delete the game
      */
     destroy(){
-        clearInterval(this.fpsDisplayer)
         this.renderer.destroy(true)
+        $("#ingame #ranking").empty()
+        $("#ingame").hide()
     }
 
     /**
