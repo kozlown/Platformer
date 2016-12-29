@@ -2,7 +2,7 @@
  * Created by Nigel on 29/11/2016.
  */
 
-let PositionableElement = require("./PositionableElement")
+let PositionableElement = require("./../PositionableElement")
 
 /**
  * @class PhysicalElement

@@ -2,7 +2,7 @@
  * Created by Nigel on 18/12/2016.
  */
 
-let Player = require("./Player")
+let Player = require("./PhysicalElements/Player")
 
 /**
  * @class Runner

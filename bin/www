@@ -58,7 +58,10 @@ var server = http.createServer(app);
  */
 var io = require('socket.io')(server);
 io.sockets.on('connection', require('../socket.io/socket')());
-
+setInterval((  )=>{
+    let gamesInfos = gamesManager.getGamesInfos()
+    io.emit('currentGames', gamesInfos)
+}, 1000)
 
 /**
  * Session

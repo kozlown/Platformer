@@ -1,14 +1,14 @@
 /**
  * Created by Nigel on 26/11/2016.
  */
-let GroundJumpable = require("./GroundJumpable")
-let GroundNotJumpable = require("./GroundNotJumpable")
-let PhysicalElement = require("./PhysicalElement")
-let Respawn = require('./Respawn');
-let Player = require('./Player')
-let Runner = require('./Runner')
-let Zombie = require('./Zombie')
-let Camera = require('./Camera')
+let GroundJumpable = require("./PositionableElements/PhysicalElements/GroundJumpable")
+let GroundNotJumpable = require("./PositionableElements/PhysicalElements/GroundNotJumpable")
+let PhysicalElement = require("./PositionableElements/PhysicalElements/PhysicalElement")
+let Respawn = require('./PositionableElements/Respawn');
+let Player = require('./PositionableElements/PhysicalElements/Player')
+let Runner = require('./PositionableElements/Runner')
+let Zombie = require('./PositionableElements/Zombie')
+let Camera = require('./PositionableElements/PhysicalElements/Camera')
 
 /**
  * @class Game

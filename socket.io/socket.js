@@ -1,19 +1,15 @@
 var Game = require('../game/Game');
-var PhysicalElement = require('../game/PhysicalElement')
-var Player = require('../game/Player');
-var Runner = require('../game/Runner');
-var Zombie = require('../game/Zombie');
-var Ground = require('../game/Ground');
-var Respawn = require('../game/Respawn');
+var PhysicalElement = require('../game/PositionableElements/PhysicalElements/PhysicalElement')
+var Player = require('../game/PositionableElements/PhysicalElements/Player');
+var Runner = require('../game/PositionableElements/Runner');
+var Zombie = require('../game/PositionableElements/Zombie');
+var Ground = require('../game/PositionableElements/PhysicalElements/Ground');
+var Respawn = require('../game/PositionableElements/Respawn');
 
 
 module.exports = ( () => {
 
     return (socket) => {
-        setInterval((  )=>{
-            let gamesInfos = gamesManager.getGamesInfos()
-            socket.broadcast.emit('currentGames', gamesInfos)
-        }, 1000)
 
         socket.on(`login`, (playerInfos) => {
             // set the last action timestamp

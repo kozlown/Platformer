@@ -2,7 +2,7 @@
  * Created by Nigel on 09/12/2016.
  */
 
-let Player = require("./Player")
+let Player = require("./PhysicalElements/Player")
 
 /**
  * @class Zombie
