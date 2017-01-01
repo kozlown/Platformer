@@ -21,7 +21,19 @@ debug = debug('platformer:server');
 _ = require('lodash');
 uniqid = require('uniqid');
 fs = require('fs');
+const exectimer = require('exectimer');
+const Tick = exectimer.Tick;
 
+// TICKS
+calculationTimer = new Tick("calculationTimer");
+sendingTimer = new Tick("sendingTimer");
+
+setInterval(()=>{
+    if ( exectimer.timers.calculationTimer )
+        console.log("Execution : ", exectimer.timers.calculationTimer.parse(exectimer.timers.calculationTimer.mean()))
+    if ( exectimer.timers.sendingTimer )
+        console.log("Sending : ", exectimer.timers.sendingTimer.parse(exectimer.timers.sendingTimer.mean()))
+}, 10000)
 
 /**
  * Matter JS

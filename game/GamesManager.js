@@ -17,9 +17,10 @@ class GamesManager {
      */
     constructor() {
 
-        this.games = {}
+        this.games = []
 
     }
+
 
     /**
      * @method addGame
@@ -35,23 +36,24 @@ class GamesManager {
         }
 
         // check if the game is already inside
-        if (!_.isUndefined(this.games[game.id])){
+        if (!_.isUndefined(this.games[game.id])) {
             return false
         }
 
         // Check if a game has already this name
         let validName = true
-        _.each( this.games , ( value , index , collection )=>{
-            if ( value.name === game.name )
-            {
+        for (let i = 0, size = this.games.length; i < size; i++) {
+            let value = this.games[i]
+            if (value.name === game.name) {
                 validName = false
             }
-        })
+
+        }
         if (!validName) return false
 
         // else
         // we add the game
-        this.games[game.id] = game
+        this.games.push(game)
 
         return true
 
@@ -69,10 +71,10 @@ class GamesManager {
 
         this.games = _.reject(this.games, (value) => {
 
-            if (value.id === game.id)
+            if (value.id === gameId)
                 isInside = true
 
-            return value.id === game.id
+            return value.id === gameId
 
         })
 
@@ -88,7 +90,9 @@ class GamesManager {
      */
     getGame(gameId) {
 
-        return this.games[gameId]
+        return (_.filter(this.games, (game) => {
+            return game.id === gameId
+        }))[0]
 
     }
 
@@ -100,12 +104,13 @@ class GamesManager {
     getGamesInfos() {
 
         let gamesInfos = []
+        for (let i = 0, size = this.games.length; i < size; i++) {
+            let value = this.games[i]
 
-        _.each( this.games , ( value , key )=>{
             gamesInfos.push({
                 id: value.id,
                 name: value.name,
-                players: _.map( value.getElementsOfType(Player) , ( value , key )=>{
+                players: _.map(value.getElementsOfType(Player), (value, key) => {
                     return {
                         name: value.name,
                         score: value.socket.score,
@@ -113,8 +118,8 @@ class GamesManager {
                     }
                 })
             })
-        })
 
+        }
         return gamesInfos
     }
 

@@ -41,7 +41,8 @@ class Player extends PhysicalElement {
             inverseMass: 1 / 2,
             frictionStatic: 0,
         })
-        this.collisions = {}
+        this.collisions = []
+
     }
 
     /**
@@ -147,14 +148,14 @@ class Player extends PhysicalElement {
      */
     handleCollisionStartWith(physicalElement) {
 
-        this.collisions[physicalElement.id] = {
+        this.collisions.push({
             positionBefore: {
                 x: this.body.position.x,
                 y: this.body.position.y
             },
             physicalElement: physicalElement,
             active: false
-        }
+        })
     }
 
     /**
@@ -165,20 +166,21 @@ class Player extends PhysicalElement {
      */
     handleCollisionActiveWith(physicalElement) {
 
-        let positionBefore = this.collisions[physicalElement.id].positionBefore
+        let collision = _.filter(this.collisions,(collision)=>{return collision.physicalElement.id === physicalElement.id})[0]
+        let positionBefore = collision.positionBefore
 
         // if it's the first time that the event "CollisionActive" is triggered for this collision
-        if (!this.collisions[physicalElement.id].positionAfter) {
+        if (!collision.positionAfter) {
 
             // set the velocityAfter property of the collision to the actual velocity of the player
-            this.collisions[physicalElement.id].positionAfter = {
+            collision.positionAfter = {
                 x: this.body.position.x,
                 y: this.body.position.y
             }
         }
 
         // active the collision
-        this.collisions[physicalElement.id].active = true
+        collision.active = true
 
         // update the state of the player
         this.updateState()
@@ -202,7 +204,7 @@ class Player extends PhysicalElement {
     handleCollisionEndWith(physicalElement) {
 
         // remove the collision from player.collisions
-        delete this.collisions[physicalElement.id]
+        this.collisions = _.reject(this.collisions, (collision)=>{return collision.physicalElement.id === physicalElement.id})
     }
 
     /**
@@ -212,80 +214,83 @@ class Player extends PhysicalElement {
     updateState() {
         // set the state name to "falling"
         this.state.name = "falling"
-        _.each(this.collisions, (collision, key, collection) => {
+        let collisions = this.collisions
+
+        for ( let i=0, size=collisions.length; i<size; i++ ){
+            let collision = collisions[i]
 
             let pb = collision.positionBefore
             let pa = collision.positionAfter
 
             // check if the collision is active
             if (collision.active)
-                // determine the state depending of the type of physicalElement colliding with the player
-                switch (collision.physicalElement.constructor.name) {
-                    case "GroundJumpable": {
+            // determine the state depending of the type of physicalElement colliding with the player
+            switch (collision.physicalElement.constructor.name) {
+                case "GroundJumpable": {
 
-                        // if coming from the left side
-                        if (_.floor(pa.x + this.width / 2) === _.floor(collision.physicalElement.body.position.x - collision.physicalElement.width / 2)) {
+                    // if coming from the left side
+                    if (_.floor(pa.x + this.width / 2) === _.floor(collision.physicalElement.body.position.x - collision.physicalElement.width / 2)) {
 
-                            // and if not standing on a block
-                            if (this.state.name !== "stand") {
+                        // and if not standing on a block
+                        if (this.state.name !== "stand") {
 
-                                // set the number of used jumps to 1
-                                this.state.usedJumps = 1
+                            // set the number of used jumps to 1
+                            this.state.usedJumps = 1
 
-                                // set the wallJump state attribute to "left"
-                                this.state.wallJump = "left"
+                            // set the wallJump state attribute to "left"
+                            this.state.wallJump = "left"
 
-                                // set the state to "on the side"
-                                this.state.name = "on the side"
-                            }
+                            // set the state to "on the side"
+                            this.state.name = "on the side"
                         }
-
-                        // if coming from the right side
-                        if (_.ceil(pa.x - this.width / 2) === _.ceil(collision.physicalElement.body.position.x + collision.physicalElement.width / 2)) {
-
-                            // and if not standing on a block
-                            if (this.state.name !== "stand") {
-
-                                // set the number of used jumps to 1
-                                this.state.usedJumps = 1
-
-                                // set the wallJump state attribute to "left"
-                                this.state.wallJump = "right"
-
-                                // set the state to "on the side"
-                                this.state.name = "on the side"
-                            }
-                        }
-
-                        // if standing on the top
-                        if (_.floor(pa.y + this.height / 2) === _.floor(collision.physicalElement.body.position.y - collision.physicalElement.height / 2)) {
-
-                            // reset the number of used jumps
-                            this.state.usedJumps = 0
-
-                            // set the state to "stand"
-                            this.state.name = "stand"
-                        }
-                        break
                     }
-                    case "GroundNotJumpable": {
-                        // if standing on the top
-                        if (_.floor(pa.y + this.height / 2) === _.floor(collision.physicalElement.body.position.y - collision.physicalElement.height / 2)) {
 
-                            // reset the number of used jumps
-                            this.state.usedJumps = 0
+                    // if coming from the right side
+                    if (_.ceil(pa.x - this.width / 2) === _.ceil(collision.physicalElement.body.position.x + collision.physicalElement.width / 2)) {
 
-                            // set the state to "stand"
-                            this.state.name = "stand"
+                        // and if not standing on a block
+                        if (this.state.name !== "stand") {
+
+                            // set the number of used jumps to 1
+                            this.state.usedJumps = 1
+
+                            // set the wallJump state attribute to "left"
+                            this.state.wallJump = "right"
+
+                            // set the state to "on the side"
+                            this.state.name = "on the side"
                         }
-                        break
                     }
-                    default: {
-                        // do nothing
-                        break
+
+                    // if standing on the top
+                    if (_.floor(pa.y + this.height / 2) === _.floor(collision.physicalElement.body.position.y - collision.physicalElement.height / 2)) {
+
+                        // reset the number of used jumps
+                        this.state.usedJumps = 0
+
+                        // set the state to "stand"
+                        this.state.name = "stand"
                     }
+                    break
                 }
-        })
+                case "GroundNotJumpable": {
+                    // if standing on the top
+                    if (_.floor(pa.y + this.height / 2) === _.floor(collision.physicalElement.body.position.y - collision.physicalElement.height / 2)) {
+
+                        // reset the number of used jumps
+                        this.state.usedJumps = 0
+
+                        // set the state to "stand"
+                        this.state.name = "stand"
+                    }
+                    break
+                }
+                default: {
+                    // do nothing
+                    break
+                }
+            }
+        }
 
     }
 }

@@ -39,8 +39,10 @@ class Game {
         // Handle all start collisions
         Events.on(this.engine, "collisionStart", (e)=>{
 
-            _.each( e.pairs , ( value , index , array )=>{
+            let pairs = e.pairs
+            for ( let i=0, size=e.pairs.length; i<size; i++ ){
 
+                let value = pairs[i]
                 let element1 = this.getElementFromBody(value.bodyA)
                 let element2 = this.getElementFromBody(value.bodyB)
 
@@ -48,14 +50,17 @@ class Game {
                     element1.handleCollisionStartWith(element2)
                     element2.handleCollisionStartWith(element1)
                 }
-            })
+
+            }
 
         })
         // Handle all active collisions
         Events.on(this.engine, "collisionActive", (e)=>{
 
-            _.each( e.pairs , ( value , index , array )=>{
+            let pairs = e.pairs
+            for ( let i=0, size=e.pairs.length; i<size; i++ ){
 
+                let value = pairs[i]
                 let element1 = this.getElementFromBody(value.bodyA)
                 let element2 = this.getElementFromBody(value.bodyB)
 
@@ -63,14 +68,16 @@ class Game {
                     element1.handleCollisionActiveWith(element2)
                     element2.handleCollisionActiveWith(element1)
                 }
-            })
+            }
 
         })
         // Handle all ended collisions
         Events.on(this.engine, "collisionEnd", (e)=>{
 
-            _.each( e.pairs , ( value , index , array )=>{
+            let pairs = e.pairs
+            for ( let i=0, size=e.pairs.length; i<size; i++ ){
 
+                let value = pairs[i]
                 let element1 = this.getElementFromBody(value.bodyA)
                 let element2 = this.getElementFromBody(value.bodyB)
 
@@ -78,7 +85,7 @@ class Game {
                     element1.handleCollisionEndWith(element2)
                     element2.handleCollisionEndWith(element1)
                 }
-            })
+            }
 
         })
 
@@ -116,10 +123,7 @@ class Game {
      * @description Go to the next state of the game
      */
     step(){
-
-        // get the start step time
         let startStepTime = new Date().getTime()
-
         /**
          * Game & Engine Update
          */
@@ -127,39 +131,31 @@ class Game {
         if (this.state !== "playing") {
             return
         }
-        // else
-        // get every player and zombies
-        let players = this.getElementsOfType( Player )
-        // move them
-        _.each( players ,(player)=>{
-            player.move()
-        })
+
         // set the last time delta
         this.lastDelta = this.delta
         // set the new time delta
         let delta = new Date().getTime() - this.lastStepTimestamp
         // update the Engine
+        calculationTimer.start()
         Engine.update(this.engine, this.delta , this.delta / this.lastDelta);
-        // set the end of calculation time
-        let endCalculationTime = new Date().getTime()
+        calculationTimer.stop()
 
         /**
-         * Send Update to players
+         * Move players & Send Update to players
          */
+
         // send informations to the players
-        _.each( players ,(player)=>{
+        sendingTimer.start()
+        // get every player and zombies
+        let players = this.getElementsOfType( Player )
+        for ( let i=0, size = players.length; i<size; i++ ){
+            let player = players[i]
+            player.move()
             player.socket.emit("gameUpdate", this.getGameUpdateInfos(player))
-        })
-        let endSendingTime = new Date().getTime()
 
-        /**
-         * Display performance statistics
-         */
-        if ((endSendingTime - endCalculationTime + endCalculationTime - startStepTime)>1000/60){
-            console.log(`Calculation time: ${endCalculationTime - startStepTime}`)
-            console.log(`Sending time: ${endSendingTime - endCalculationTime}`)
         }
-
+        sendingTimer.stop()
         /**
          * Get current step duration
          */
@@ -199,16 +195,21 @@ class Game {
             y: -player.body.position.y
         }
 
+        let cameras = this.getElementsOfType( Camera )
         let camera
-        _.each( this.getElementsOfType( Camera ) , ( value , key , collection )=>{
+        for ( let i=0, size = cameras.length; i<size; i++ ){
 
-            value.position.x = player.body.position.x
-            value.position.y = player.body.position.y
-            camera = value
+            camera = cameras[i]
+            camera.position.x = player.body.position.x
+            camera.position.y = player.body.position.y
+           
+        }
 
-        })
         // add all PhysicalElements being in the Game and in the field of vision of the player
-        _.each( this.getElementsOfType( PhysicalElement ), ( element )=>{
+        let physicalElements = this.getElementsOfType( PhysicalElement )
+        for ( let i=0, size = physicalElements.length; i<size; i++ ){
+
+            let element = physicalElements[i]
             let isInsideFieldOfVision = false
 
             // If the physicalElement is not a camera
@@ -233,7 +234,8 @@ class Game {
                     rank: element.socket ? element.socket.rank : null
                 })
             }
-        })
+
+        }
 
         return gameUpdateInfos
 
@@ -303,8 +305,9 @@ class Game {
         })).map
 
         // Add all elements to the game
-        _.each( map , ( value , index , array )=>{
+        for ( let i=0, size = map.length; i<size; i++ ){
 
+            let value = map[i]
             switch ( value.type ){
                 case "GroundJumpable":
                     this.addElement( new GroundJumpable( value.position.x , value.position.y , value.width , value.height ) )
@@ -319,7 +322,8 @@ class Game {
                     this.addElement( new Camera( 0, 0, value.width, value.height ))
             }
 
-        })
+        }
+
         return true
 
     }
@@ -333,15 +337,16 @@ class Game {
 
         let returnElement=false
 
-        _.each( this.elements , ( value , index , array )=>{
+        let elements = this.elements
+        for ( let i=0, size = elements.length; i<size; i++ ){
 
+            let value = elements[i]
             if (value instanceof PhysicalElement && value.body)
             if (value.body.id === body.id){
-                returnElement = value
+                return value
             }
-        })
 
-        return returnElement
+        }
     }
 
     /**
@@ -364,13 +369,16 @@ class Game {
      * @returns {Array}
      */
     getElementsOfType(type){
-        let elements = []
-        _.each( this.elements , ( element )=>{
-            if ( element instanceof type )
-                elements.push( element )
+        let returnElements = []
+        let elements = this.elements
+        for ( let i=0, size=elements.length; i<size; i++ ){
 
-        } )
-        return elements
+            let element = elements[i]
+            if ( element instanceof type )
+                returnElements.push( element )
+
+        }
+        return returnElements
     }
 
     /**
@@ -379,17 +387,25 @@ class Game {
      */
     updateScores(  ){
 
-        _.each( this.getElementsOfType(Zombie) , ( value , key , collection )=>{
+        let zombies = this.getElementsOfType(Zombie),
+            runners = this.getElementsOfType(Runner),
+            players = this.getElementsOfType(Player)
 
+        for ( let i=0, size=zombies.length; i<size; i++ ){
+
+            let value = zombies[i]
             // decrease score by 1%
             value.socket.score -= _.floor(value.socket.score / 100)
-        })
 
-        _.each( this.getElementsOfType(Runner) , ( value , key , collection )=>{
+        }
 
+        for ( let i=0, size=runners.length; i<size; i++ ){
+
+            let value = runners[i]
             // increase in score by 10 points
             value.socket.score += 10
-        })
+
+        }
 
         this.updateRanks()
 
@@ -401,10 +417,13 @@ class Game {
             }
         })
 
-        _.each( this.getElementsOfType(Player) , ( value , key , collection )=>{
+        for ( let i=0, size=players.length; i<size; i++ ){
 
+            let value = players[i]
             value.socket.emit('rankingInfos', rankingInfos )
-        })
+
+        }
+
     }
     
     /**
@@ -412,11 +431,14 @@ class Game {
      * @description update ranks of all players
      */
     updateRanks(  ){
-    
-        _.each( _.orderBy(this.getElementsOfType(Player), [(player)=>{return player.socket.score}], ["desc"]) , ( value , key , collection )=>{
-            
-            value.socket.rank = key+1
-        })
+
+        let orderedPlayers = _.orderBy(this.getElementsOfType(Player), [(player)=>{return player.socket.score}], ["desc"])
+        for ( let i=0, size = orderedPlayers.length; i<size; i++ ){
+
+            let value = orderedPlayers[i]
+            value.socket.rank = i+1
+
+        }
     
     }
 }
