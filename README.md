@@ -1,1 +1,1 @@
-Platformer made with Pixi.js and Matter.js.
+Platformer made with Node.js, Pixi.js and Matter.js.
